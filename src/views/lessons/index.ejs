@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">ClassTrack</a>
+      <nav class="nav">
+        <a href="/students">Alumnos</a>
+        <a href="/lessons">Clases</a>
+        <a href="/payments">Pagos</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <p class="eyebrow">V1</p>
+        <h1>Clases</h1>
+        <p>Registra sesiones realizadas y guarda el cobro final en CLP.</p>
+      </section>
+
+      <% if (errors.length > 0) { %>
+        <section class="alert">
+          <% errors.forEach((error) => { %>
+            <p><%= error %></p>
+          <% }) %>
+        </section>
+      <% } %>
+
+      <section class="panel">
+        <h2>Nueva clase</h2>
+
+        <% if (students.length === 0) { %>
+          <p class="empty">Primero crea al menos un alumno.</p>
+          <a class="button-link" href="/students">Ir a alumnos</a>
+        <% } else { %>
+          <form class="form" action="/lessons" method="post" data-lesson-form>
+            <label>
+              Alumno
+              <select name="studentId" required data-student-select>
+                <option value="">Seleccionar alumno</option>
+                <% students.forEach((student) => { %>
+                  <option
+                    value="<%= student.id %>"
+                    data-rate="<%= student.hourlyRate %>"
+                    <%= Number(formData.studentId) === Number(student.id) ? 'selected' : '' %>
+                  >
+                    <%= student.name %> - $<%= student.hourlyRate.toLocaleString('es-CL') %>/h
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+
+            <label>
+              Fecha
+              <input name="lessonDate" type="date" value="<%= formData.lessonDate %>" required />
+            </label>
+
+            <label>
+              Duracion (minutos)
+              <input
+                name="durationMinutes"
+                type="number"
+                min="1"
+                step="1"
+                value="<%= formData.durationMinutes || '' %>"
+                required
+                data-duration-input
+              />
+            </label>
+
+            <fieldset class="fieldset">
+              <legend>Modo de cobro</legend>
+              <label class="radio-row">
+                <input
+                  name="chargeMode"
+                  type="radio"
+                  value="auto"
+                  <%= formData.chargeMode !== 'manual' ? 'checked' : '' %>
+                  data-charge-mode
+                />
+                Automatico por tarifa
+              </label>
+              <label class="radio-row">
+                <input
+                  name="chargeMode"
+                  type="radio"
+                  value="manual"
+                  <%= formData.chargeMode === 'manual' ? 'checked' : '' %>
+                  data-charge-mode
+                />
+                Monto manual
+              </label>
+            </fieldset>
+
+            <label data-manual-amount-wrapper>
+              Monto manual (CLP)
+              <input
+                name="manualAmount"
+                type="number"
+                min="0"
+                step="1"
+                value="<%= formData.manualAmount || '' %>"
+                data-manual-amount-input
+              />
+            </label>
+
+            <p class="preview" data-amount-preview>Total estimado: $0</p>
+
+            <label>
+              Notas
+              <textarea name="notes" rows="3"><%= formData.notes || '' %></textarea>
+            </label>
+
+            <button type="submit">Guardar clase</button>
+          </form>
+        <% } %>
+      </section>
+
+      <section class="list-section">
+        <h2>Clases registradas</h2>
+
+        <% if (lessons.length === 0) { %>
+          <p class="empty">Aun no hay clases registradas.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% lessons.forEach((lesson) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><%= lesson.studentName %></h3>
+                  <p><%= lesson.lessonDate %> - <%= lesson.durationMinutes %> min</p>
+                </div>
+                <strong>$<%= lesson.amountCharged.toLocaleString('es-CL') %></strong>
+                <p class="notes">
+                  <%= lesson.chargeMode === 'manual' ? 'Manual' : 'Automatico' %>
+                  a $<%= lesson.hourlyRateSnapshot.toLocaleString('es-CL') %>/h
+                </p>
+                <% if (lesson.notes) { %>
+                  <p class="notes"><%= lesson.notes %></p>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+
+    <script src="/lessons.js"></script>
+  </body>
+</html>

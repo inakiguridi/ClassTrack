@@ -77,6 +77,35 @@ body {
   padding: 16px;
 }
 
+.summary-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.summary-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+}
+
+.summary-card span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.summary-card strong {
+  color: var(--accent-dark);
+  font-size: 1.5rem;
+}
+
+.summary-card-warning {
+  border-color: #f4bd50;
+  background: #fff8e8;
+}
+
 .panel h2,
 .list-section h2 {
   margin-top: 0;
@@ -95,6 +124,7 @@ body {
 }
 
 input,
+select,
 textarea {
   width: 100%;
   border: 1px solid var(--line);
@@ -124,6 +154,52 @@ button,
 button:hover,
 .button-link:hover {
   background: var(--accent-dark);
+}
+
+.button-link-secondary {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  margin-left: 8px;
+}
+
+.button-link-secondary:hover {
+  color: white;
+}
+
+.fieldset {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 12px;
+}
+
+.fieldset legend {
+  color: var(--muted);
+  font-weight: 800;
+  padding: 0 6px;
+}
+
+.radio-row {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.radio-row input {
+  width: auto;
+}
+
+.preview {
+  background: #edf8fb;
+  border: 1px solid #b7dfe9;
+  border-radius: 8px;
+  color: var(--accent-dark);
+  font-weight: 800;
+  margin: 0;
+  padding: 10px 12px;
 }
 
 .alert {
@@ -171,7 +247,19 @@ button:hover,
   color: var(--accent-dark);
 }
 
+.balance-due {
+  color: #9f5b00;
+}
+
+.balance-ok {
+  color: #187445;
+}
+
 @media (min-width: 680px) {
+  .summary-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
   .student-card {
     grid-template-columns: 1fr auto;
     align-items: start;

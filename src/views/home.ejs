@@ -11,6 +11,8 @@
       <a class="brand" href="/">ClassTrack</a>
       <nav class="nav">
         <a href="/students">Alumnos</a>
+        <a href="/lessons">Clases</a>
+        <a href="/payments">Pagos</a>
       </nav>
     </header>
 
@@ -21,10 +23,51 @@
         <p><%= subtitle %></p>
       </section>
 
+      <section class="summary-grid">
+        <article class="summary-card">
+          <span>Total cobrado</span>
+          <strong>$<%= dashboard.totals.totalCharged.toLocaleString('es-CL') %></strong>
+        </article>
+        <article class="summary-card">
+          <span>Total pagado</span>
+          <strong>$<%= dashboard.totals.totalPaid.toLocaleString('es-CL') %></strong>
+        </article>
+        <article class="summary-card <%= dashboard.totals.balance > 0 ? 'summary-card-warning' : '' %>">
+          <span>Total pendiente</span>
+          <strong>$<%= dashboard.totals.balance.toLocaleString('es-CL') %></strong>
+        </article>
+      </section>
+
       <section class="panel">
-        <h2>Primer flujo</h2>
-        <p>Ya puedes crear alumnos con tarifa por hora.</p>
+        <h2>Acciones</h2>
         <a class="button-link" href="/students">Ir a alumnos</a>
+        <a class="button-link button-link-secondary" href="/lessons">Ir a clases</a>
+        <a class="button-link button-link-secondary" href="/payments">Ir a pagos</a>
+      </section>
+
+      <section class="list-section">
+        <h2>Saldos por alumno</h2>
+
+        <% if (dashboard.students.length === 0) { %>
+          <p class="empty">Aun no hay alumnos registrados.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% dashboard.students.forEach((student) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><%= student.name %></h3>
+                  <p>
+                    Clases: $<%= student.totalCharged.toLocaleString('es-CL') %>
+                    · Pagos: $<%= student.totalPaid.toLocaleString('es-CL') %>
+                  </p>
+                </div>
+                <strong class="<%= student.balance > 0 ? 'balance-due' : 'balance-ok' %>">
+                  $<%= student.balance.toLocaleString('es-CL') %>
+                </strong>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
       </section>
     </main>
   </body>

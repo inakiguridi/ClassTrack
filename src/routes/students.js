@@ -1,18 +1,24 @@
 const express = require("express");
-const { createStudent, listStudents } = require("../db/memoryStore");
+const { createStudent, listStudents } = require("../db/studentsRepository");
 
 const router = express.Router();
 
-router.get("/", (_req, res) => {
-  res.render("students/index", {
-    pageTitle: "Alumnos",
-    students: listStudents(),
-    errors: [],
-    formData: {}
-  });
+router.get("/", async (_req, res, next) => {
+  try {
+    const students = await listStudents();
+
+    res.render("students/index", {
+      pageTitle: "Alumnos",
+      students,
+      errors: [],
+      formData: {}
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.post("/", (req, res) => {
+router.post("/", async (req, res, next) => {
   const formData = {
     name: String(req.body.name || "").trim(),
     hourlyRate: Number(req.body.hourlyRate),
@@ -31,16 +37,26 @@ router.post("/", (req, res) => {
   }
 
   if (errors.length > 0) {
-    return res.status(400).render("students/index", {
-      pageTitle: "Alumnos",
-      students: listStudents(),
-      errors,
-      formData
-    });
+    try {
+      const students = await listStudents();
+
+      return res.status(400).render("students/index", {
+        pageTitle: "Alumnos",
+        students,
+        errors,
+        formData
+      });
+    } catch (error) {
+      return next(error);
+    }
   }
 
-  createStudent(formData);
-  return res.redirect("/students");
+  try {
+    await createStudent(formData);
+    return res.redirect("/students");
+  } catch (error) {
+    return next(error);
+  }
 });
 
 module.exports = router;

@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">ClassTrack</a>
+      <nav class="nav">
+        <a href="/students">Alumnos</a>
+        <a href="/lessons">Clases</a>
+        <a href="/payments">Pagos</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <p class="eyebrow">V1</p>
+        <h1>Pagos</h1>
+        <p>Registra abonos recibidos y manten un historial por alumno.</p>
+      </section>
+
+      <% if (errors.length > 0) { %>
+        <section class="alert">
+          <% errors.forEach((error) => { %>
+            <p><%= error %></p>
+          <% }) %>
+        </section>
+      <% } %>
+
+      <section class="panel">
+        <h2>Nuevo pago</h2>
+
+        <% if (students.length === 0) { %>
+          <p class="empty">Primero crea al menos un alumno.</p>
+          <a class="button-link" href="/students">Ir a alumnos</a>
+        <% } else { %>
+          <form class="form" action="/payments" method="post">
+            <label>
+              Alumno
+              <select name="studentId" required>
+                <option value="">Seleccionar alumno</option>
+                <% students.forEach((student) => { %>
+                  <option
+                    value="<%= student.id %>"
+                    <%= Number(formData.studentId) === Number(student.id) ? 'selected' : '' %>
+                  >
+                    <%= student.name %>
+                  </option>
+                <% }) %>
+              </select>
+            </label>
+
+            <label>
+              Fecha
+              <input name="paymentDate" type="date" value="<%= formData.paymentDate %>" required />
+            </label>
+
+            <label>
+              Monto pagado (CLP)
+              <input
+                name="amountPaid"
+                type="number"
+                min="1"
+                step="1"
+                value="<%= formData.amountPaid || '' %>"
+                required
+              />
+            </label>
+
+            <label>
+              Metodo
+              <input name="method" type="text" value="<%= formData.method || '' %>" />
+            </label>
+
+            <label>
+              Notas
+              <textarea name="notes" rows="3"><%= formData.notes || '' %></textarea>
+            </label>
+
+            <button type="submit">Guardar pago</button>
+          </form>
+        <% } %>
+      </section>
+
+      <section class="list-section">
+        <h2>Pagos registrados</h2>
+
+        <% if (payments.length === 0) { %>
+          <p class="empty">Aun no hay pagos registrados.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% payments.forEach((payment) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><%= payment.studentName %></h3>
+                  <p><%= payment.paymentDate %> - <%= payment.method || 'Sin metodo' %></p>
+                </div>
+                <strong>$<%= payment.amountPaid.toLocaleString('es-CL') %></strong>
+                <% if (payment.notes) { %>
+                  <p class="notes"><%= payment.notes %></p>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+  </body>
+</html>
