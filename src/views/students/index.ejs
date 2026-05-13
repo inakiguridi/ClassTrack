@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">ClassTrack</a>
+      <nav class="nav">
+        <a href="/students">Alumnos</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <p class="eyebrow">V1</p>
+        <h1>Alumnos</h1>
+        <p>Registra la tarifa por hora de cada alumno para calcular cobros en las proximas etapas.</p>
+      </section>
+
+      <% if (errors.length > 0) { %>
+        <section class="alert">
+          <% errors.forEach((error) => { %>
+            <p><%= error %></p>
+          <% }) %>
+        </section>
+      <% } %>
+
+      <section class="panel">
+        <h2>Nuevo alumno</h2>
+        <form class="form" action="/students" method="post">
+          <label>
+            Nombre
+            <input name="name" type="text" value="<%= formData.name || '' %>" required />
+          </label>
+
+          <label>
+            Tarifa por hora (CLP)
+            <input
+              name="hourlyRate"
+              type="number"
+              min="0"
+              step="1"
+              value="<%= formData.hourlyRate || '' %>"
+              required
+            />
+          </label>
+
+          <label>
+            Contacto
+            <input name="contact" type="text" value="<%= formData.contact || '' %>" />
+          </label>
+
+          <label>
+            Notas
+            <textarea name="notes" rows="3"><%= formData.notes || '' %></textarea>
+          </label>
+
+          <button type="submit">Guardar alumno</button>
+        </form>
+      </section>
+
+      <section class="list-section">
+        <h2>Listado</h2>
+
+        <% if (students.length === 0) { %>
+          <p class="empty">Aun no hay alumnos registrados.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% students.forEach((student) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><%= student.name %></h3>
+                  <p><%= student.contact || 'Sin contacto' %></p>
+                </div>
+                <strong>$<%= student.hourlyRate.toLocaleString('es-CL') %>/h</strong>
+                <% if (student.notes) { %>
+                  <p class="notes"><%= student.notes %></p>
+                <% } %>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+  </body>
+</html>
