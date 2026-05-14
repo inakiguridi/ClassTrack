@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Ir al dashboard"><img src="/logo-mark.svg" alt="" /><span>Class<span>Track</span></span></a>
+      <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/students">Alumnos</a>
+        <a href="/lessons">Clases</a>
+        <a href="/payments">Pagos</a>
+        <a class="active" href="/analytics">Analytics</a>
+        <form class="logout-form" action="/logout" method="post">
+          <button type="submit">Salir</button>
+        </form>
+      </nav>
+    </header>
+
+    <main class="container wide-container">
+      <section class="page-header">
+        <p class="eyebrow">Analisis</p>
+        <h1>Analytics</h1>
+        <p>Resumen de clases, pagos, alumnos, duraciones y comportamiento mensual.</p>
+      </section>
+
+      <section class="summary-grid analytics-grid">
+        <article class="summary-card">
+          <span>Clases hechas</span>
+          <strong><%= analytics.overview.totalLessons.toLocaleString('es-CL') %></strong>
+        </article>
+        <article class="summary-card">
+          <span>Horas realizadas</span>
+          <strong><%= Math.round(analytics.overview.totalMinutes / 60).toLocaleString('es-CL') %> h</strong>
+        </article>
+        <article class="summary-card">
+          <span>Duracion promedio</span>
+          <strong><%= analytics.overview.averageMinutes.toLocaleString('es-CL') %> min</strong>
+        </article>
+        <article class="summary-card">
+          <span>Pagos recibidos</span>
+          <strong><%= analytics.overview.totalPayments.toLocaleString('es-CL') %></strong>
+        </article>
+        <article class="summary-card">
+          <span>Cobrado</span>
+          <strong>$<%= analytics.overview.totalCharged.toLocaleString('es-CL') %></strong>
+        </article>
+        <article class="summary-card <%= analytics.overview.balance > 0 ? 'summary-card-warning' : '' %>">
+          <span>Pendiente</span>
+          <strong>$<%= analytics.overview.balance.toLocaleString('es-CL') %></strong>
+        </article>
+      </section>
+
+      <section class="analytics-layout">
+        <article class="panel">
+          <h2>Clases por alumno</h2>
+          <% if (analytics.classesByStudent.length === 0) { %>
+            <p class="empty">Aun no hay alumnos registrados.</p>
+          <% } else { %>
+            <div class="metric-list">
+              <% analytics.classesByStudent.forEach((student) => { %>
+                <a class="metric-row" href="/students/<%= student.id %>">
+                  <span>
+                    <strong><%= student.name %></strong>
+                    <small><%= student.total_minutes.toLocaleString('es-CL') %> min - $<%= student.total_charged.toLocaleString('es-CL') %></small>
+                  </span>
+                  <b><%= student.lesson_count %></b>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+
+        <article class="panel">
+          <h2>Clases por duracion</h2>
+          <% if (analytics.classesByDuration.length === 0) { %>
+            <p class="empty">Aun no hay clases registradas.</p>
+          <% } else { %>
+            <div class="metric-list">
+              <% analytics.classesByDuration.forEach((duration) => { %>
+                <div class="metric-row">
+                  <span>
+                    <strong><%= duration.duration_minutes %> min</strong>
+                    <small>$<%= duration.total_charged.toLocaleString('es-CL') %> cobrado</small>
+                  </span>
+                  <b><%= duration.lesson_count %></b>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+
+        <article class="panel">
+          <h2>Pagos por alumno</h2>
+          <% if (analytics.paymentsByStudent.length === 0) { %>
+            <p class="empty">Aun no hay alumnos registrados.</p>
+          <% } else { %>
+            <div class="metric-list">
+              <% analytics.paymentsByStudent.forEach((student) => { %>
+                <a class="metric-row" href="/students/<%= student.id %>">
+                  <span>
+                    <strong><%= student.name %></strong>
+                    <small><%= student.payment_count %> pago(s)</small>
+                  </span>
+                  <b>$<%= student.total_paid.toLocaleString('es-CL') %></b>
+                </a>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+
+        <article class="panel">
+          <h2>Pagos por metodo</h2>
+          <% if (analytics.paymentsByMethod.length === 0) { %>
+            <p class="empty">Aun no hay pagos registrados.</p>
+          <% } else { %>
+            <div class="metric-list">
+              <% analytics.paymentsByMethod.forEach((method) => { %>
+                <div class="metric-row">
+                  <span>
+                    <strong><%= method.method %></strong>
+                    <small><%= method.payment_count %> pago(s)</small>
+                  </span>
+                  <b>$<%= method.total_paid.toLocaleString('es-CL') %></b>
+                </div>
+              <% }) %>
+            </div>
+          <% } %>
+        </article>
+      </section>
+
+      <section class="list-section">
+        <h2>Estadisticas mensuales</h2>
+        <% if (analytics.monthlyStats.length === 0) { %>
+          <p class="empty">Aun no hay movimientos mensuales.</p>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mes</th>
+                  <th>Clases</th>
+                  <th>Minutos</th>
+                  <th>Cobrado</th>
+                  <th>Pagos</th>
+                  <th>Pagado</th>
+                  <th>Pendiente</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% analytics.monthlyStats.forEach((month) => { %>
+                  <tr>
+                    <td><%= month.month %></td>
+                    <td><%= month.lesson_count %></td>
+                    <td><%= month.total_minutes.toLocaleString('es-CL') %></td>
+                    <td>$<%= month.total_charged.toLocaleString('es-CL') %></td>
+                    <td><%= month.payment_count %></td>
+                    <td>$<%= month.total_paid.toLocaleString('es-CL') %></td>
+                    <td>$<%= month.balance.toLocaleString('es-CL') %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="list-section">
+        <h2>Saldos ordenados</h2>
+        <% if (analytics.studentBalances.length === 0) { %>
+          <p class="empty">Aun no hay alumnos registrados.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% analytics.studentBalances.forEach((student) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><a href="/students/<%= student.id %>"><%= student.name %></a></h3>
+                  <p>Cobrado: $<%= student.total_charged.toLocaleString('es-CL') %> - Pagado: $<%= student.total_paid.toLocaleString('es-CL') %></p>
+                </div>
+                <strong class="<%= student.balance > 0 ? 'balance-due' : 'balance-ok' %>">$<%= student.balance.toLocaleString('es-CL') %></strong>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+  </body>
+</html>

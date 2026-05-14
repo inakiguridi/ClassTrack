@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const analyticsRouter = require("./routes/analytics");
 const authRouter = require("./routes/auth");
 const exportRouter = require("./routes/export");
 const healthRouter = require("./routes/health");
@@ -36,6 +37,7 @@ app.use(requireAuth);
 app.use("/health", healthRouter);
 app.use("/export", exportRouter);
 app.use("/", homeRouter);
+app.use("/analytics", analyticsRouter);
 app.use("/students", studentsRouter);
 app.use("/lessons", lessonsRouter);
 app.use("/payments", paymentsRouter);
