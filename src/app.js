@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const authRouter = require("./routes/auth");
+const healthRouter = require("./routes/health");
 const homeRouter = require("./routes/home");
 const lessonsRouter = require("./routes/lessons");
 const paymentsRouter = require("./routes/payments");
@@ -24,6 +25,7 @@ app.get("/health", (_req, res) => {
 
 app.use("/", authRouter);
 app.use(requireAuth);
+app.use("/health", healthRouter);
 app.use("/", homeRouter);
 app.use("/students", studentsRouter);
 app.use("/lessons", lessonsRouter);
@@ -36,12 +38,21 @@ app.use((_req, res) => {
   });
 });
 
-app.use((error, _req, res, _next) => {
-  console.error(error);
+app.use((error, req, res, _next) => {
+  const requestId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+  console.error({
+    requestId,
+    path: req.originalUrl,
+    code: error.code,
+    message: error.message,
+    detail: error.detail,
+    hint: error.hint
+  });
 
   res.status(500).render("error", {
     pageTitle: "Error",
-    message: "No pudimos completar la accion. Revisa la conexion a la base de datos."
+    message: `No pudimos completar la accion. Revisa la conexion a la base de datos. Codigo: ${requestId}`
   });
 });
 

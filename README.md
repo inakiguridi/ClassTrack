@@ -71,6 +71,31 @@ Notas:
 - Los assets estan en `public/`, que Vercel sirve como archivos estaticos.
 - No subir `.env` ni `.vercel/`.
 
+## Diagnostico en Produccion
+
+Despues de iniciar sesion, abre:
+
+```text
+/health/db
+```
+
+Respuesta esperada:
+
+```json
+{
+  "ok": true,
+  "databaseUrl": "supabase-pooler",
+  "checks": {
+    "students_table": true,
+    "lessons_table": true,
+    "payments_table": true,
+    "parent_name_column": true
+  }
+}
+```
+
+Si `databaseUrl` dice `supabase-direct` y falla en Vercel, cambia `DATABASE_URL` por la URL del pooler de Supabase. La conexion directa de Supabase puede requerir IPv6; el pooler es la opcion compatible para entornos que necesitan IPv4.
+
 ## Pendiente Opcional
 
 - Rotar credenciales de Supabase si alguna vez se subieron a GitHub.
