@@ -6,12 +6,34 @@ function ensureDatabase() {
   }
 }
 
-async function listLessons() {
+async function listLessons(filters = {}) {
   ensureDatabase();
 
-  const result = await pool.query(`
+  const conditions = [];
+  const values = [];
+
+  if (filters.studentId) {
+    values.push(filters.studentId);
+    conditions.push(`lessons.student_id = $${values.length}`);
+  }
+
+  if (filters.dateFrom) {
+    values.push(filters.dateFrom);
+    conditions.push(`lessons.lesson_date >= $${values.length}`);
+  }
+
+  if (filters.dateTo) {
+    values.push(filters.dateTo);
+    conditions.push(`lessons.lesson_date <= $${values.length}`);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const result = await pool.query(
+    `
     SELECT
       lessons.id,
+      lessons.student_id,
       lessons.lesson_date::text AS lesson_date,
       lessons.duration_minutes,
       lessons.hourly_rate_snapshot,
@@ -22,20 +44,13 @@ async function listLessons() {
       students.name AS student_name
     FROM lessons
     JOIN students ON students.id = lessons.student_id
+    ${whereClause}
     ORDER BY lessons.lesson_date DESC, lessons.created_at DESC, lessons.id DESC
-  `);
+  `,
+    values
+  );
 
-  return result.rows.map((lesson) => ({
-    id: lesson.id,
-    lessonDate: lesson.lesson_date,
-    durationMinutes: lesson.duration_minutes,
-    hourlyRateSnapshot: lesson.hourly_rate_snapshot,
-    chargeMode: lesson.charge_mode,
-    manualAmount: lesson.manual_amount,
-    amountCharged: lesson.amount_charged,
-    notes: lesson.notes,
-    studentName: lesson.student_name
-  }));
+  return result.rows.map(mapLesson);
 }
 
 function mapLesson(lesson) {

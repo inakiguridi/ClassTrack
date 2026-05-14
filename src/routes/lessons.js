@@ -11,6 +11,17 @@ const { isFutureDateInput, isValidDateInput, todayForInput } = require("../utils
 
 const router = express.Router();
 
+function filterFormData(query) {
+  const dateFrom = String(query.dateFrom || "").trim();
+  const dateTo = String(query.dateTo || "").trim();
+
+  return {
+    filterStudentId: Number(query.studentId) || null,
+    dateFrom: isValidDateInput(dateFrom) ? dateFrom : "",
+    dateTo: isValidDateInput(dateTo) ? dateTo : ""
+  };
+}
+
 function calculateAutoAmount(hourlyRate, durationMinutes) {
   return Math.round((hourlyRate * durationMinutes) / 60);
 }
@@ -64,12 +75,18 @@ function validateLesson(formData) {
 }
 
 async function renderIndex(res, { errors = [], formData = {} } = {}) {
-  const [students, lessons] = await Promise.all([listStudents(), listLessons()]);
+  const filters = {
+    studentId: formData.filterStudentId || null,
+    dateFrom: formData.dateFrom || "",
+    dateTo: formData.dateTo || ""
+  };
+  const [students, lessons] = await Promise.all([listStudents(), listLessons(filters)]);
 
   res.render("lessons/index", {
     pageTitle: "Clases",
     students,
     lessons,
+    filters,
     errors,
     formData: {
       lessonDate: todayForInput(),
@@ -81,7 +98,9 @@ async function renderIndex(res, { errors = [], formData = {} } = {}) {
 
 router.get("/", async (_req, res, next) => {
   try {
-    await renderIndex(res);
+    await renderIndex(res, {
+      formData: filterFormData(_req.query)
+    });
   } catch (error) {
     next(error);
   }

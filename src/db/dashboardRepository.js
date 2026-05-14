@@ -53,6 +53,46 @@ async function getDashboard() {
   return { students, totals };
 }
 
+async function getMonthlySummary() {
+  ensureDatabase();
+
+  const result = await pool.query(`
+    WITH lesson_months AS (
+      SELECT
+        DATE_TRUNC('month', lesson_date)::date AS month,
+        SUM(amount_charged)::int AS total_charged
+      FROM lessons
+      GROUP BY month
+    ),
+    payment_months AS (
+      SELECT
+        DATE_TRUNC('month', payment_date)::date AS month,
+        SUM(amount_paid)::int AS total_paid
+      FROM payments
+      GROUP BY month
+    )
+    SELECT
+      COALESCE(lesson_months.month, payment_months.month)::text AS month,
+      COALESCE(lesson_months.total_charged, 0)::int AS total_charged,
+      COALESCE(payment_months.total_paid, 0)::int AS total_paid,
+      (
+        COALESCE(lesson_months.total_charged, 0) -
+        COALESCE(payment_months.total_paid, 0)
+      )::int AS balance
+    FROM lesson_months
+    FULL OUTER JOIN payment_months ON payment_months.month = lesson_months.month
+    ORDER BY month DESC
+    LIMIT 12
+  `);
+
+  return result.rows.map((row) => ({
+    month: row.month.slice(0, 7),
+    totalCharged: row.total_charged,
+    totalPaid: row.total_paid,
+    balance: row.balance
+  }));
+}
+
 async function getStudentBalance(studentId) {
   ensureDatabase();
 
@@ -102,5 +142,6 @@ async function getStudentBalance(studentId) {
 
 module.exports = {
   getDashboard,
+  getMonthlySummary,
   getStudentBalance
 };

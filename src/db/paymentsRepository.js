@@ -6,12 +6,34 @@ function ensureDatabase() {
   }
 }
 
-async function listPayments() {
+async function listPayments(filters = {}) {
   ensureDatabase();
 
-  const result = await pool.query(`
+  const conditions = [];
+  const values = [];
+
+  if (filters.studentId) {
+    values.push(filters.studentId);
+    conditions.push(`payments.student_id = $${values.length}`);
+  }
+
+  if (filters.dateFrom) {
+    values.push(filters.dateFrom);
+    conditions.push(`payments.payment_date >= $${values.length}`);
+  }
+
+  if (filters.dateTo) {
+    values.push(filters.dateTo);
+    conditions.push(`payments.payment_date <= $${values.length}`);
+  }
+
+  const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+
+  const result = await pool.query(
+    `
     SELECT
       payments.id,
+      payments.student_id,
       payments.payment_date::text AS payment_date,
       payments.amount_paid,
       payments.method,
@@ -19,17 +41,13 @@ async function listPayments() {
       students.name AS student_name
     FROM payments
     JOIN students ON students.id = payments.student_id
+    ${whereClause}
     ORDER BY payments.payment_date DESC, payments.created_at DESC, payments.id DESC
-  `);
+  `,
+    values
+  );
 
-  return result.rows.map((payment) => ({
-    id: payment.id,
-    paymentDate: payment.payment_date,
-    amountPaid: payment.amount_paid,
-    method: payment.method,
-    notes: payment.notes,
-    studentName: payment.student_name
-  }));
+  return result.rows.map(mapPayment);
 }
 
 function mapPayment(payment) {

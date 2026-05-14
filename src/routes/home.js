@@ -1,16 +1,17 @@
 const express = require("express");
-const { getDashboard } = require("../db/dashboardRepository");
+const { getDashboard, getMonthlySummary } = require("../db/dashboardRepository");
 
 const router = express.Router();
 
 router.get("/", async (_req, res, next) => {
   try {
-    const dashboard = await getDashboard();
+    const [dashboard, monthlySummary] = await Promise.all([getDashboard(), getMonthlySummary()]);
 
     res.render("home", {
       pageTitle: "ClassTrack",
       subtitle: "Registro simple de clases, cobros y pagos",
-      dashboard
+      dashboard,
+      monthlySummary
     });
   } catch (error) {
     next(error);

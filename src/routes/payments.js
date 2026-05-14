@@ -11,6 +11,17 @@ const { isFutureDateInput, isValidDateInput, todayForInput } = require("../utils
 
 const router = express.Router();
 
+function filterFormData(query) {
+  const dateFrom = String(query.dateFrom || "").trim();
+  const dateTo = String(query.dateTo || "").trim();
+
+  return {
+    filterStudentId: Number(query.studentId) || null,
+    dateFrom: isValidDateInput(dateFrom) ? dateFrom : "",
+    dateTo: isValidDateInput(dateTo) ? dateTo : ""
+  };
+}
+
 function paymentFormData(body) {
   return {
     studentId: Number(body.studentId),
@@ -52,12 +63,18 @@ function validatePayment(formData) {
 }
 
 async function renderIndex(res, { errors = [], formData = {} } = {}) {
-  const [students, payments] = await Promise.all([listStudents(), listPayments()]);
+  const filters = {
+    studentId: formData.filterStudentId || null,
+    dateFrom: formData.dateFrom || "",
+    dateTo: formData.dateTo || ""
+  };
+  const [students, payments] = await Promise.all([listStudents(), listPayments(filters)]);
 
   res.render("payments/index", {
     pageTitle: "Pagos",
     students,
     payments,
+    filters,
     errors,
     formData: {
       paymentDate: todayForInput(),
@@ -68,7 +85,9 @@ async function renderIndex(res, { errors = [], formData = {} } = {}) {
 
 router.get("/", async (_req, res, next) => {
   try {
-    await renderIndex(res);
+    await renderIndex(res, {
+      formData: filterFormData(_req.query)
+    });
   } catch (error) {
     next(error);
   }

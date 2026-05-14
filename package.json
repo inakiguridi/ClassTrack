@@ -2,10 +2,14 @@
   "name": "classtrack",
   "version": "1.0.0",
   "description": "Web app to track private lessons, charges and payments.",
-  "main": "src/server.js",
+  "main": "src/app.js",
   "scripts": {
     "dev": "node --watch src/server.js",
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "vercel-build": "echo \"No build step required\""
+  },
+  "engines": {
+    "node": ">=20"
   },
   "keywords": [
     "lessons",

@@ -8,12 +8,15 @@
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="/">ClassTrack</a>
+      <a class="brand" href="/" aria-label="Ir al dashboard"><img src="/logo-mark.svg" alt="" /><span>Class<span>Track</span></span></a>
       <nav class="nav">
         <a href="/">Dashboard</a>
         <a href="/students">Alumnos</a>
         <a class="active" href="/lessons">Clases</a>
         <a href="/payments">Pagos</a>
+        <form class="logout-form" action="/logout" method="post">
+          <button type="submit">Salir</button>
+        </form>
       </nav>
     </header>
 
@@ -125,6 +128,32 @@
 
       <section class="list-section">
         <h2>Clases registradas</h2>
+
+        <form class="filter-form" action="/lessons" method="get">
+          <label>
+            Alumno
+            <select name="studentId">
+              <option value="">Todos</option>
+              <% students.forEach((student) => { %>
+                <option value="<%= student.id %>" <%= Number(filters.studentId) === Number(student.id) ? 'selected' : '' %>>
+                  <%= student.name %>
+                </option>
+              <% }) %>
+            </select>
+          </label>
+          <label>
+            Desde
+            <input name="dateFrom" type="date" value="<%= filters.dateFrom || '' %>" />
+          </label>
+          <label>
+            Hasta
+            <input name="dateTo" type="date" value="<%= filters.dateTo || '' %>" />
+          </label>
+          <div class="filter-actions">
+            <button type="submit">Filtrar</button>
+            <a class="button-link button-link-secondary" href="/lessons">Limpiar</a>
+          </div>
+        </form>
 
         <% if (lessons.length === 0) { %>
           <p class="empty">Aun no hay clases registradas.</p>

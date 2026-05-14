@@ -1,0 +1,20 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ClassTrack">
+  <defs>
+    <linearGradient id="cap" x1="20" y1="20" x2="78" y2="68" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6b5ce7"/>
+      <stop offset="1" stop-color="#4b57d6"/>
+    </linearGradient>
+    <linearGradient id="bars" x1="22" y1="48" x2="70" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18c3bd"/>
+      <stop offset="1" stop-color="#0aa6b1"/>
+    </linearGradient>
+  </defs>
+  <path d="M48 15.5 13.5 35.4a5.5 5.5 0 0 0 0 9.5L48 64.8a5.5 5.5 0 0 0 5.5 0L88 44.9a5.5 5.5 0 0 0 0-9.5L53.5 15.5a5.5 5.5 0 0 0-5.5 0Z" fill="url(#cap)"/>
+  <path d="M24.5 50.5v15.8c0 4.6 3.3 8.7 8.4 11.8 5.2 3.1 12.2 5 19.1 5s13.9-1.9 19.1-5c5.1-3.1 8.4-7.2 8.4-11.8V50.5l-9 5.2v10.6c0 1.2-1.3 2.9-3.9 4.5V59h-8.8v15.4c-1.8.3-3.7.5-5.8.5-1.5 0-3-.1-4.4-.3V63.1h-8.8v8.6c-3.5-1.6-5.4-3.6-5.4-5.4V55.7l-8.3-5.2Z" fill="url(#bars)"/>
+  <path d="M33 47.5 45.8 39l11.6 7.5 19.2-6.2" stroke="white" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="33" cy="47.5" r="5.7" fill="#13bbb7" stroke="white" stroke-width="4.5"/>
+  <circle cx="57.4" cy="46.5" r="5.7" fill="#13bbb7" stroke="white" stroke-width="4.5"/>
+  <circle cx="76.6" cy="40.3" r="5.7" fill="#5b56dd" stroke="white" stroke-width="4.5"/>
+  <path d="M82 47v20" stroke="#5b56dd" stroke-width="5" stroke-linecap="round"/>
+  <path d="M82 67 77.5 80h9L82 67Z" fill="#5b56dd"/>
+</svg>

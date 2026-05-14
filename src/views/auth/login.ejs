@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="login-page">
+    <main class="login-shell">
+      <section class="login-panel">
+        <img class="login-logo" src="/logo-mark.svg" alt="ClassTrack" />
+        <p class="eyebrow">ClassTrack</p>
+        <h1>Ingresar</h1>
+        <p>Accede a tu registro de clases, cobros y pagos.</p>
+
+        <% if (configError) { %>
+          <section class="alert">
+            <p><%= configError %></p>
+          </section>
+        <% } %>
+
+        <% if (usesDevPassword) { %>
+          <section class="notice">
+            <p>Modo local: usa la contrasena <strong>admin</strong>. Configura <code>ADMIN_PASSWORD</code> antes de publicar.</p>
+          </section>
+        <% } %>
+
+        <% if (error) { %>
+          <section class="alert">
+            <p><%= error %></p>
+          </section>
+        <% } %>
+
+        <form class="form" action="/login" method="post">
+          <input type="hidden" name="next" value="<%= nextUrl %>" />
+          <label>
+            Contrasena
+            <input name="password" type="password" autocomplete="current-password" required autofocus />
+          </label>
+          <button type="submit">Entrar</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

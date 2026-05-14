@@ -8,12 +8,15 @@
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="/">ClassTrack</a>
+      <a class="brand" href="/" aria-label="Ir al dashboard"><img src="/logo-mark.svg" alt="" /><span>Class<span>Track</span></span></a>
       <nav class="nav">
         <a href="/">Dashboard</a>
         <a href="/students">Alumnos</a>
         <a href="/lessons">Clases</a>
         <a class="active" href="/payments">Pagos</a>
+        <form class="logout-form" action="/logout" method="post">
+          <button type="submit">Salir</button>
+        </form>
       </nav>
     </header>
 

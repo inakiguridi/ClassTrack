@@ -8,12 +8,15 @@
   </head>
   <body>
     <header class="topbar">
-      <a class="brand" href="/">ClassTrack</a>
+      <a class="brand" href="/" aria-label="Ir al dashboard"><img src="/logo-mark.svg" alt="" /><span>Class<span>Track</span></span></a>
       <nav class="nav">
         <a class="active" href="/">Dashboard</a>
         <a href="/students">Alumnos</a>
         <a href="/lessons">Clases</a>
         <a href="/payments">Pagos</a>
+        <form class="logout-form" action="/logout" method="post">
+          <button type="submit">Salir</button>
+        </form>
       </nav>
     </header>
 
@@ -67,6 +70,37 @@
                 </strong>
               </article>
             <% }) %>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="list-section">
+        <h2>Resumen mensual</h2>
+
+        <% if (monthlySummary.length === 0) { %>
+          <p class="empty">Aun no hay movimientos mensuales.</p>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Mes</th>
+                  <th>Cobrado</th>
+                  <th>Pagado</th>
+                  <th>Pendiente</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% monthlySummary.forEach((month) => { %>
+                  <tr>
+                    <td><%= month.month %></td>
+                    <td>$<%= month.totalCharged.toLocaleString('es-CL') %></td>
+                    <td>$<%= month.totalPaid.toLocaleString('es-CL') %></td>
+                    <td>$<%= month.balance.toLocaleString('es-CL') %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
           </div>
         <% } %>
       </section>

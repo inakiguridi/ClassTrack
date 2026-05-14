@@ -1,126 +1,78 @@
 # ClassTrack
 
-Aplicacion web para registrar clases particulares, cobros y pagos por alumno.
+Aplicacion web privada para registrar clases particulares, cobros, pagos y saldos por alumno.
 
-## V1 Alcance
+## Stack
 
-- Solo uso personal (sin login en esta version).
-- Solo clases realizadas.
-- Moneda unica: `CLP`.
-- Deuda por alumno calculada como:
-  `total_clases - total_pagos`.
-- Pago aplicado a la deuda general del alumno (no a clases individuales).
-- Responsive para uso en celular y escritorio.
+- `Node.js` + `Express`
+- `EJS`
+- `PostgreSQL` en `Supabase`
+- Deploy preparado para `Vercel`
 
-## Stack V1 (simple para publicar gratis)
+## Funcionalidad Actual
 
-- Frontend + Backend: `Node.js` + `Express` + `EJS`
-- Base de datos: `PostgreSQL` (hosteada gratis)
-- Deploy app: `Render` (free tier)
-- Deploy DB: `Supabase Postgres` (free tier)
+- Login simple con contrasena.
+- Dashboard con totales y resumen mensual.
+- CRUD de alumnos.
+- Detalle de alumno con saldo, clases, pagos y calendario.
+- CRUD de clases con cobro automatico o manual.
+- CRUD de pagos con metodo `transferencia` o `efectivo`.
+- Filtros por alumno y fecha en clases y pagos.
+- UI responsive para escritorio y celular.
 
-## Modelo de Datos Minimo
+## Variables de Entorno
 
-### `students`
+Crear `.env` local desde `.env.example`:
 
-- `id` (uuid o serial)
-- `name` (requerido)
-- `hourly_rate` (entero CLP, requerido)
-- `contact` (opcional)
-- `notes` (opcional)
-- `created_at`
+```env
+PORT=3000
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB_NAME
+ADMIN_PASSWORD=tu-contrasena
+SESSION_SECRET=un-secreto-largo-y-aleatorio
+```
 
-### `lessons`
+En desarrollo, si `ADMIN_PASSWORD` no existe, la app permite entrar con `admin`.
+En produccion, `ADMIN_PASSWORD` y `SESSION_SECRET` son obligatorias.
 
-- `id`
-- `student_id` (FK -> students.id)
-- `lesson_date` (fecha)
-- `duration_minutes` (requerido)
-- `hourly_rate_snapshot` (entero CLP)
-- `charge_mode` (`auto` o `manual`)
-- `manual_amount` (entero CLP, nullable)
-- `amount_charged` (entero CLP, requerido)
-- `notes` (opcional)
-- `created_at`
+## Base de Datos
 
-Regla:
-- Si `charge_mode=auto`: `amount_charged = hourly_rate_snapshot * duration_minutes / 60`.
-- Si `charge_mode=manual`: `amount_charged = manual_amount`.
+Ejecutar `src/db/schema.sql` en Supabase.
 
-### `payments`
+Si tu base ya existia antes de `parent_name`, ejecutar:
 
-- `id`
-- `student_id` (FK -> students.id)
-- `payment_date`
-- `amount_paid` (entero CLP, requerido)
-- `method` (opcional: transferencia, efectivo, etc.)
-- `notes` (opcional)
-- `created_at`
-
-## Vistas Minimas de la App
-
-- Dashboard:
-  total cobrado, total pagado, total pendiente.
-- Alumnos:
-  listar, crear, editar tarifa por hora.
-- Clases:
-  registrar clase, calcular cobro automatico, opcion monto manual.
-- Pagos:
-  registrar pagos por alumno.
-- Estado por alumno:
-  total clases, total pagos, saldo pendiente.
-
-## Seccion Web a Implementar (Hosting 100% web)
-
-### 1) Base tecnica
-
-- [ ] Inicializar proyecto `Node.js` con `Express` y `EJS`.
-- [ ] Configurar variables de entorno (`.env`) para DB y puerto.
-- [ ] Crear estructura inicial:
-  `src/routes`, `src/views`, `src/public`, `src/db`.
-
-### 2) Base de datos (Postgres)
-
-- [ ] Crear proyecto en `Supabase`.
-- [ ] Crear tablas `students`, `lessons`, `payments`.
-- [ ] Agregar FKs, constraints y campos requeridos.
-- [ ] Cargar datos de prueba minimos.
-
-### 3) Funcionalidad V1
-
-- [ ] CRUD basico de alumnos.
-- [ ] Registrar clase con modo `auto/manual`.
-- [ ] Registrar pagos.
-- [ ] Calcular saldo por alumno en consultas (no guardarlo en columna fija).
-- [ ] Mostrar dashboard con totales.
-
-### 4) UI responsive
-
-- [ ] Formularios simples y claros para celular.
-- [ ] Tabla/listados legibles en mobile (cards o tabla adaptada).
-- [ ] Validaciones de campos obligatorios y montos positivos.
-
-### 5) Deploy web gratis
-
-- [ ] Subir repositorio a GitHub.
-- [ ] Crear servicio web en `Render`.
-- [ ] Configurar `DATABASE_URL` de Supabase en Render.
-- [ ] Ejecutar migraciones/schema en la DB productiva.
-- [ ] Verificar app publicada desde celular y escritorio.
-
-## V2 (cuando toque)
-
-- Login/autenticacion.
-- Exportacion CSV/Excel.
-- Clases futuras/agendadas.
+```sql
+ALTER TABLE students ADD COLUMN IF NOT EXISTS parent_name TEXT;
+```
 
 ## Arranque Local
 
-1. Instalar `Node.js` (incluye `npm`).
-2. Instalar dependencias:
-   `npm install`
-3. Crear archivo `.env` desde `.env.example`.
-4. Ejecutar en desarrollo:
-   `npm run dev`
-5. Abrir:
-   `http://localhost:3000`
+```powershell
+npm install
+npm run dev
+```
+
+Luego abrir:
+
+```text
+http://localhost:3000
+```
+
+## Deploy en Vercel
+
+1. Subir el repo a GitHub.
+2. Crear un proyecto nuevo en Vercel conectado al repo.
+3. Configurar variables de entorno en Vercel:
+   `DATABASE_URL`, `ADMIN_PASSWORD`, `SESSION_SECRET`, `NODE_ENV=production`.
+4. Deploy.
+
+Notas:
+- La app exporta Express desde `src/app.js`, compatible con Express en Vercel.
+- Los assets estan en `public/`, que Vercel sirve como archivos estaticos.
+- No subir `.env` ni `.vercel/`.
+
+## Pendiente Opcional
+
+- Rotar credenciales de Supabase si alguna vez se subieron a GitHub.
+- Tests automatizados.
+- Exportacion CSV/Excel.
+- Reportes mas avanzados.
