@@ -119,9 +119,14 @@
             <a class="button-link button-link-secondary" href="/lessons">Cancelar</a>
           </div>
         </form>
+
+        <form class="delete-form" action="/lessons/<%= lesson.id %>/delete" method="post" data-confirm="Esto eliminara la clase registrada.">
+          <button class="danger-button filled" type="submit">Eliminar clase</button>
+        </form>
       </section>
     </main>
 
     <script src="/lessons.js"></script>
+    <script src="/confirm.js"></script>
   </body>
 </html>

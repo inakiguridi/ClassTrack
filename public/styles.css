@@ -336,6 +336,12 @@ button,
   margin: 0;
 }
 
+.delete-form {
+  border-top: 1px solid var(--line);
+  margin-top: 18px;
+  padding-top: 16px;
+}
+
 .danger-button {
   background: transparent;
   color: var(--danger-text);

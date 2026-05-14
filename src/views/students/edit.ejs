@@ -69,7 +69,12 @@
             <a class="button-link button-link-secondary" href="/students/<%= student.id %>">Cancelar</a>
           </div>
         </form>
+
+        <form class="delete-form" action="/students/<%= student.id %>/delete" method="post" data-confirm="Esto borrara el alumno y sus clases/pagos asociados.">
+          <button class="danger-button filled" type="submit">Eliminar alumno</button>
+        </form>
       </section>
     </main>
+    <script src="/confirm.js"></script>
   </body>
 </html>
