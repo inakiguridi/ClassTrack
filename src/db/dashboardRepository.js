@@ -93,6 +93,49 @@ async function getMonthlySummary() {
   }));
 }
 
+async function getRecentActivity(limit = 8) {
+  ensureDatabase();
+
+  const result = await pool.query(
+    `
+      SELECT *
+      FROM (
+        SELECT
+          'lesson' AS type,
+          lessons.id,
+          lessons.lesson_date::text AS activity_date,
+          lessons.amount_charged AS amount,
+          students.name AS student_name,
+          lessons.duration_minutes::text || ' min' AS detail
+        FROM lessons
+        JOIN students ON students.id = lessons.student_id
+        UNION ALL
+        SELECT
+          'payment' AS type,
+          payments.id,
+          payments.payment_date::text AS activity_date,
+          payments.amount_paid AS amount,
+          students.name AS student_name,
+          COALESCE(payments.method, 'sin metodo') AS detail
+        FROM payments
+        JOIN students ON students.id = payments.student_id
+      ) activity
+      ORDER BY activity_date DESC, id DESC
+      LIMIT $1
+    `,
+    [limit]
+  );
+
+  return result.rows.map((row) => ({
+    type: row.type,
+    id: row.id,
+    activityDate: row.activity_date,
+    amount: row.amount,
+    studentName: row.student_name,
+    detail: row.detail
+  }));
+}
+
 async function getStudentBalance(studentId) {
   ensureDatabase();
 
@@ -143,5 +186,6 @@ async function getStudentBalance(studentId) {
 module.exports = {
   getDashboard,
   getMonthlySummary,
+  getRecentActivity,
   getStudentBalance
 };

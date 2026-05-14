@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const authRouter = require("./routes/auth");
+const exportRouter = require("./routes/export");
 const healthRouter = require("./routes/health");
 const homeRouter = require("./routes/home");
 const lessonsRouter = require("./routes/lessons");
@@ -19,6 +20,13 @@ app.use(express.urlencoded({ extended: false, limit: "50kb" }));
 app.use(express.json({ limit: "50kb" }));
 app.use(express.static(path.join(__dirname, "..", "public")));
 
+app.use((req, res, next) => {
+  res.locals.flash = {
+    success: typeof req.query.success === "string" ? req.query.success : null
+  };
+  next();
+});
+
 app.get("/health", (_req, res) => {
   res.status(200).json({ ok: true });
 });
@@ -26,6 +34,7 @@ app.get("/health", (_req, res) => {
 app.use("/", authRouter);
 app.use(requireAuth);
 app.use("/health", healthRouter);
+app.use("/export", exportRouter);
 app.use("/", homeRouter);
 app.use("/students", studentsRouter);
 app.use("/lessons", lessonsRouter);

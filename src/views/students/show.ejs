@@ -27,6 +27,8 @@
         <p><%= student.parentName ? `Padre: ${student.parentName}` : 'Sin nombre de padre' %></p>
       </section>
 
+      <%- include('../partials/flash') %>
+
       <section class="summary-grid">
         <article class="summary-card">
           <span>Clases</span>
@@ -49,6 +51,8 @@
         <p><strong>Notas:</strong> <%= student.notes || 'Sin notas' %></p>
         <div class="form-actions">
           <a class="button-link" href="/students/<%= student.id %>/edit">Editar alumno</a>
+          <a class="button-link button-link-secondary" href="/lessons?studentId=<%= student.id %>">Registrar clase</a>
+          <a class="button-link button-link-secondary" href="/payments?studentId=<%= student.id %>">Registrar pago</a>
           <form action="/students/<%= student.id %>/delete" method="post" data-confirm="Esto borrara el alumno y sus clases/pagos asociados.">
             <button class="danger-button filled" type="submit">Eliminar alumno</button>
           </form>

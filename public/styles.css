@@ -65,6 +65,22 @@ body {
   padding: 10px 14px;
 }
 
+.flash {
+  border-radius: 8px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+}
+
+.flash p {
+  margin: 0;
+}
+
+.flash-success {
+  background: #ecfdf3;
+  border: 1px solid #9ddfba;
+  color: #187445;
+}
+
 .topbar {
   display: flex;
   align-items: center;
@@ -210,6 +226,10 @@ body {
 .summary-grid {
   display: grid;
   gap: 12px;
+}
+
+.compact-summary {
+  margin-top: 10px;
 }
 
 .summary-card {
@@ -579,6 +599,49 @@ button:hover,
   gap: 6px;
   margin-top: 12px;
   padding: 12px;
+}
+
+.calendar-detail a {
+  color: var(--accent);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.calendar-detail a:hover {
+  text-decoration: underline;
+}
+
+.confirm-modal {
+  align-items: center;
+  background: rgba(27, 36, 48, 0.42);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  padding: 18px;
+  position: fixed;
+  z-index: 50;
+}
+
+.confirm-modal[hidden] {
+  display: none;
+}
+
+.confirm-dialog {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 24px 70px rgba(27, 36, 48, 0.24);
+  max-width: 420px;
+  padding: 18px;
+  width: 100%;
+}
+
+.confirm-dialog h2 {
+  margin: 0 0 8px;
+}
+
+.confirm-dialog p {
+  color: var(--muted);
 }
 
 @media (min-width: 680px) {

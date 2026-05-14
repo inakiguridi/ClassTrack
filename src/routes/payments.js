@@ -8,6 +8,7 @@ const {
 } = require("../db/paymentsRepository");
 const { findStudentById, listStudents } = require("../db/studentsRepository");
 const { isFutureDateInput, isValidDateInput, todayForInput } = require("../utils/dates");
+const { withSuccess } = require("../utils/redirects");
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ function filterFormData(query) {
 
   return {
     filterStudentId: Number(query.studentId) || null,
+    studentId: Number(query.studentId) || null,
     dateFrom: isValidDateInput(dateFrom) ? dateFrom : "",
     dateTo: isValidDateInput(dateTo) ? dateTo : ""
   };
@@ -112,7 +114,7 @@ router.post("/", async (req, res, next) => {
     }
 
     await createPayment(formData);
-    return res.redirect("/payments");
+    return res.redirect(withSuccess("/payments", "Pago registrado correctamente."));
   } catch (error) {
     return next(error);
   }
@@ -183,7 +185,7 @@ router.post("/:id", async (req, res, next) => {
     }
 
     await updatePayment(paymentId, formData);
-    return res.redirect("/payments");
+    return res.redirect(withSuccess("/payments", "Pago actualizado correctamente."));
   } catch (error) {
     return next(error);
   }
@@ -197,7 +199,7 @@ router.post("/:id/delete", async (req, res, next) => {
       await deletePayment(paymentId);
     }
 
-    return res.redirect("/payments");
+    return res.redirect(withSuccess("/payments", "Pago eliminado correctamente."));
   } catch (error) {
     return next(error);
   }

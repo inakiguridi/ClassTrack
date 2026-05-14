@@ -8,6 +8,7 @@ const {
 } = require("../db/lessonsRepository");
 const { findStudentById, listStudents } = require("../db/studentsRepository");
 const { isFutureDateInput, isValidDateInput, todayForInput } = require("../utils/dates");
+const { withSuccess } = require("../utils/redirects");
 
 const router = express.Router();
 
@@ -17,6 +18,7 @@ function filterFormData(query) {
 
   return {
     filterStudentId: Number(query.studentId) || null,
+    studentId: Number(query.studentId) || null,
     dateFrom: isValidDateInput(dateFrom) ? dateFrom : "",
     dateTo: isValidDateInput(dateTo) ? dateTo : ""
   };
@@ -140,7 +142,7 @@ router.post("/", async (req, res, next) => {
       notes: formData.notes
     });
 
-    return res.redirect("/lessons");
+    return res.redirect(withSuccess("/lessons", "Clase registrada correctamente."));
   } catch (error) {
     return next(error);
   }
@@ -226,7 +228,7 @@ router.post("/:id", async (req, res, next) => {
       notes: formData.notes
     });
 
-    return res.redirect("/lessons");
+    return res.redirect(withSuccess("/lessons", "Clase actualizada correctamente."));
   } catch (error) {
     return next(error);
   }
@@ -240,7 +242,7 @@ router.post("/:id/delete", async (req, res, next) => {
       await deleteLesson(lessonId);
     }
 
-    return res.redirect("/lessons");
+    return res.redirect(withSuccess("/lessons", "Clase eliminada correctamente."));
   } catch (error) {
     return next(error);
   }

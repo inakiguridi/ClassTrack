@@ -4,6 +4,10 @@ function todayForInput() {
   }).format(new Date());
 }
 
+function currentMonthKey() {
+  return todayForInput().slice(0, 7);
+}
+
 function isValidDateInput(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
     return false;
@@ -24,6 +28,7 @@ function isFutureDateInput(value) {
 }
 
 module.exports = {
+  currentMonthKey,
   todayForInput,
   isValidDateInput,
   isFutureDateInput

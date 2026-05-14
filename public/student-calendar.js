@@ -40,7 +40,12 @@ if (calendarGrid && calendarTitle && dataNode) {
     const total = dayLessons.reduce((sum, lesson) => sum + lesson.amountCharged, 0);
     calendarDetail.innerHTML = `
       <strong>${dayLessons.length} clase(s) el ${key}</strong>
-      <span>${dayLessons.map((lesson) => `${lesson.durationMinutes} min - ${formatClp(lesson.amountCharged)}`).join("<br>")}</span>
+      <span>${dayLessons
+        .map(
+          (lesson) =>
+            `<a href="/lessons/${lesson.id}/edit">${lesson.durationMinutes} min - ${formatClp(lesson.amountCharged)}</a>`
+        )
+        .join("<br>")}</span>
       <span>Total: ${formatClp(total)}</span>
     `;
   }

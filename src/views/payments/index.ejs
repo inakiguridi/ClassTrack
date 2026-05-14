@@ -27,6 +27,8 @@
         <p>Registra abonos recibidos y manten un historial por alumno.</p>
       </section>
 
+      <%- include('../partials/flash') %>
+
       <% if (errors.length > 0) { %>
         <section class="alert">
           <% errors.forEach((error) => { %>

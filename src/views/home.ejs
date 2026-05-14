@@ -27,6 +27,8 @@
         <p><%= subtitle %></p>
       </section>
 
+      <%- include('partials/flash') %>
+
       <section class="summary-grid">
         <article class="summary-card">
           <span>Total cobrado</span>
@@ -43,10 +45,60 @@
       </section>
 
       <section class="panel">
+        <h2>Este mes</h2>
+        <div class="summary-grid compact-summary">
+          <article class="summary-card">
+            <span>Cobrado</span>
+            <strong>$<%= currentMonth.totalCharged.toLocaleString('es-CL') %></strong>
+          </article>
+          <article class="summary-card">
+            <span>Pagado</span>
+            <strong>$<%= currentMonth.totalPaid.toLocaleString('es-CL') %></strong>
+          </article>
+          <article class="summary-card <%= currentMonth.balance > 0 ? 'summary-card-warning' : '' %>">
+            <span>Pendiente</span>
+            <strong>$<%= currentMonth.balance.toLocaleString('es-CL') %></strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel">
         <h2>Acciones</h2>
         <a class="button-link" href="/students">Ir a alumnos</a>
         <a class="button-link button-link-secondary" href="/lessons">Ir a clases</a>
         <a class="button-link button-link-secondary" href="/payments">Ir a pagos</a>
+      </section>
+
+      <section class="panel">
+        <h2>Exportar CSV</h2>
+        <div class="form-actions">
+          <a class="button-link" href="/export/students.csv">Alumnos</a>
+          <a class="button-link button-link-secondary" href="/export/lessons.csv">Clases</a>
+          <a class="button-link button-link-secondary" href="/export/payments.csv">Pagos</a>
+        </div>
+      </section>
+
+      <section class="list-section">
+        <h2>Ultimos movimientos</h2>
+        <% if (recentActivity.length === 0) { %>
+          <p class="empty">Aun no hay movimientos registrados.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% recentActivity.forEach((activity) => { %>
+              <article class="student-card">
+                <div>
+                  <h3>
+                    <a href="<%= activity.type === 'lesson' ? `/lessons/${activity.id}/edit` : `/payments/${activity.id}/edit` %>">
+                      <%= activity.type === 'lesson' ? 'Clase' : 'Pago' %> - <%= activity.studentName %>
+                    </a>
+                  </h3>
+                  <p><%= activity.activityDate %> - <%= activity.detail %></p>
+                </div>
+                <strong>$<%= activity.amount.toLocaleString('es-CL') %></strong>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
       </section>
 
       <section class="list-section">

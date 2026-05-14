@@ -9,6 +9,7 @@ const {
   listStudents,
   updateStudent
 } = require("../db/studentsRepository");
+const { withSuccess } = require("../utils/redirects");
 
 const router = express.Router();
 
@@ -79,7 +80,7 @@ router.post("/", async (req, res, next) => {
 
   try {
     await createStudent(formData);
-    return res.redirect("/students");
+    return res.redirect(withSuccess("/students", "Alumno creado correctamente."));
   } catch (error) {
     return next(error);
   }
@@ -103,6 +104,7 @@ router.get("/:id", async (req, res, next) => {
       listPaymentsByStudentId(studentId)
     ]);
     const calendarLessons = lessons.map((lesson) => ({
+      id: lesson.id,
       date: lesson.lessonDate,
       durationMinutes: lesson.durationMinutes,
       amountCharged: lesson.amountCharged,
@@ -170,7 +172,7 @@ router.post("/:id", async (req, res, next) => {
     }
 
     await updateStudent(studentId, formData);
-    return res.redirect(`/students/${studentId}`);
+    return res.redirect(withSuccess(`/students/${studentId}`, "Alumno actualizado correctamente."));
   } catch (error) {
     return next(error);
   }
@@ -184,7 +186,7 @@ router.post("/:id/delete", async (req, res, next) => {
       await deleteStudent(studentId);
     }
 
-    return res.redirect("/students");
+    return res.redirect(withSuccess("/students", "Alumno eliminado correctamente."));
   } catch (error) {
     return next(error);
   }
