@@ -10,7 +10,8 @@
     <header class="topbar">
       <a class="brand" href="/">ClassTrack</a>
       <nav class="nav">
-        <a href="/students">Alumnos</a>
+        <a href="/">Dashboard</a>
+        <a class="active" href="/students">Alumnos</a>
         <a href="/lessons">Clases</a>
         <a href="/payments">Pagos</a>
       </nav>
@@ -31,12 +32,47 @@
         </section>
       <% } %>
 
-      <section class="panel">
-        <h2>Nuevo alumno</h2>
+      <section class="list-section">
+        <h2>Listado</h2>
+
+        <% if (students.length === 0) { %>
+          <p class="empty">Aun no hay alumnos registrados.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% students.forEach((student) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><a href="/students/<%= student.id %>"><%= student.name %></a></h3>
+                  <p><%= student.parentName ? `Padre: ${student.parentName}` : 'Sin nombre de padre' %></p>
+                </div>
+                <strong>$<%= student.hourlyRate.toLocaleString('es-CL') %>/h</strong>
+                <% if (student.notes) { %>
+                  <p class="notes"><%= student.notes %></p>
+                <% } %>
+                <div class="card-actions">
+                  <a href="/students/<%= student.id %>">Ver</a>
+                  <a href="/students/<%= student.id %>/edit">Editar</a>
+                  <form action="/students/<%= student.id %>/delete" method="post" data-confirm="Esto borrara el alumno y sus clases/pagos asociados.">
+                    <button class="danger-button" type="submit">Eliminar</button>
+                  </form>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+
+      <details class="panel add-panel" <%= errors.length > 0 ? 'open' : '' %>>
+        <summary>Agregar alumno nuevo</summary>
         <form class="form" action="/students" method="post">
           <label>
             Nombre
             <input name="name" type="text" value="<%= formData.name || '' %>" required />
+          </label>
+
+          <label>
+            Nombre padre
+            <input name="parentName" type="text" maxlength="120" value="<%= formData.parentName || '' %>" />
           </label>
 
           <label>
@@ -52,41 +88,15 @@
           </label>
 
           <label>
-            Contacto
-            <input name="contact" type="text" value="<%= formData.contact || '' %>" />
-          </label>
-
-          <label>
             Notas
             <textarea name="notes" rows="3"><%= formData.notes || '' %></textarea>
           </label>
 
           <button type="submit">Guardar alumno</button>
         </form>
-      </section>
-
-      <section class="list-section">
-        <h2>Listado</h2>
-
-        <% if (students.length === 0) { %>
-          <p class="empty">Aun no hay alumnos registrados.</p>
-        <% } else { %>
-          <div class="student-grid">
-            <% students.forEach((student) => { %>
-              <article class="student-card">
-                <div>
-                  <h3><%= student.name %></h3>
-                  <p><%= student.contact || 'Sin contacto' %></p>
-                </div>
-                <strong>$<%= student.hourlyRate.toLocaleString('es-CL') %>/h</strong>
-                <% if (student.notes) { %>
-                  <p class="notes"><%= student.notes %></p>
-                <% } %>
-              </article>
-            <% }) %>
-          </div>
-        <% } %>
-      </section>
+      </details>
     </main>
+
+    <script src="/confirm.js"></script>
   </body>
 </html>

@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS students (
   name TEXT NOT NULL,
   hourly_rate INTEGER NOT NULL CHECK (hourly_rate >= 0),
   contact TEXT,
+  parent_name TEXT,
   notes TEXT,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

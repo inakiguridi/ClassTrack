@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">ClassTrack</a>
+      <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/students">Alumnos</a>
+        <a href="/lessons">Clases</a>
+        <a class="active" href="/payments">Pagos</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <p class="eyebrow">Pago</p>
+        <h1>Editar pago</h1>
+        <p><%= payment.studentName %> - <%= payment.paymentDate %></p>
+      </section>
+
+      <% if (errors.length > 0) { %>
+        <section class="alert">
+          <% errors.forEach((error) => { %>
+            <p><%= error %></p>
+          <% }) %>
+        </section>
+      <% } %>
+
+      <section class="panel">
+        <form class="form" action="/payments/<%= payment.id %>" method="post">
+          <label>
+            Alumno
+            <select name="studentId" required>
+              <% students.forEach((student) => { %>
+                <option
+                  value="<%= student.id %>"
+                  <%= Number(formData.studentId) === Number(student.id) ? 'selected' : '' %>
+                >
+                  <%= student.name %>
+                </option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label>
+            Fecha
+            <input name="paymentDate" type="date" value="<%= formData.paymentDate %>" required />
+          </label>
+
+          <label>
+            Monto pagado (CLP)
+            <input
+              name="amountPaid"
+              type="number"
+              min="1"
+              step="1"
+              value="<%= formData.amountPaid || '' %>"
+              required
+            />
+          </label>
+
+          <label>
+            Metodo
+            <select name="method">
+              <option value="">Sin metodo</option>
+              <option value="transferencia" <%= formData.method === 'transferencia' ? 'selected' : '' %>>Transferencia</option>
+              <option value="efectivo" <%= formData.method === 'efectivo' ? 'selected' : '' %>>Efectivo</option>
+            </select>
+          </label>
+
+          <label>
+            Notas
+            <textarea name="notes" rows="3"><%= formData.notes || '' %></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit">Guardar cambios</button>
+            <a class="button-link button-link-secondary" href="/payments">Cancelar</a>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

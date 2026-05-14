@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">ClassTrack</a>
+      <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a href="/students">Alumnos</a>
+        <a class="active" href="/lessons">Clases</a>
+        <a href="/payments">Pagos</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <p class="eyebrow">Clase</p>
+        <h1>Editar clase</h1>
+        <p><%= lesson.studentName %> - <%= lesson.lessonDate %></p>
+      </section>
+
+      <% if (errors.length > 0) { %>
+        <section class="alert">
+          <% errors.forEach((error) => { %>
+            <p><%= error %></p>
+          <% }) %>
+        </section>
+      <% } %>
+
+      <section class="panel">
+        <form class="form" action="/lessons/<%= lesson.id %>" method="post" data-lesson-form>
+          <label>
+            Alumno
+            <select name="studentId" required data-student-select>
+              <% students.forEach((student) => { %>
+                <option
+                  value="<%= student.id %>"
+                  data-rate="<%= student.hourlyRate %>"
+                  <%= Number(formData.studentId) === Number(student.id) ? 'selected' : '' %>
+                >
+                  <%= student.name %> - $<%= student.hourlyRate.toLocaleString('es-CL') %>/h
+                </option>
+              <% }) %>
+            </select>
+          </label>
+
+          <label>
+            Fecha
+            <input name="lessonDate" type="date" value="<%= formData.lessonDate %>" required />
+          </label>
+
+          <label>
+            Duracion (minutos)
+            <input
+              name="durationMinutes"
+              type="number"
+              min="1"
+              max="480"
+              step="1"
+              value="<%= formData.durationMinutes || '' %>"
+              required
+              data-duration-input
+            />
+          </label>
+
+          <fieldset class="fieldset">
+            <legend>Modo de cobro</legend>
+            <label class="radio-row">
+              <input
+                name="chargeMode"
+                type="radio"
+                value="auto"
+                <%= formData.chargeMode !== 'manual' ? 'checked' : '' %>
+                data-charge-mode
+              />
+              Automatico por tarifa
+            </label>
+            <label class="radio-row">
+              <input
+                name="chargeMode"
+                type="radio"
+                value="manual"
+                <%= formData.chargeMode === 'manual' ? 'checked' : '' %>
+                data-charge-mode
+              />
+              Monto manual
+            </label>
+          </fieldset>
+
+          <label data-manual-amount-wrapper>
+            Monto manual (CLP)
+            <input
+              name="manualAmount"
+              type="number"
+              min="0"
+              step="1"
+              value="<%= formData.manualAmount || '' %>"
+              data-manual-amount-input
+            />
+          </label>
+
+          <p class="preview" data-amount-preview>Total estimado: $0</p>
+
+          <label>
+            Notas
+            <textarea name="notes" rows="3"><%= formData.notes || '' %></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit">Guardar cambios</button>
+            <a class="button-link button-link-secondary" href="/lessons">Cancelar</a>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script src="/lessons.js"></script>
+  </body>
+</html>

@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">ClassTrack</a>
+      <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a class="active" href="/students">Alumnos</a>
+        <a href="/lessons">Clases</a>
+        <a href="/payments">Pagos</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <p class="eyebrow">Alumno</p>
+        <h1>Editar alumno</h1>
+        <p><%= student.name %></p>
+      </section>
+
+      <% if (errors.length > 0) { %>
+        <section class="alert">
+          <% errors.forEach((error) => { %>
+            <p><%= error %></p>
+          <% }) %>
+        </section>
+      <% } %>
+
+      <section class="panel">
+        <form class="form" action="/students/<%= student.id %>" method="post">
+          <label>
+            Nombre
+            <input name="name" type="text" value="<%= formData.name || '' %>" required />
+          </label>
+
+          <label>
+            Tarifa por hora (CLP)
+            <input
+              name="hourlyRate"
+              type="number"
+              min="0"
+              step="1"
+              value="<%= formData.hourlyRate || '' %>"
+              required
+            />
+          </label>
+
+          <label>
+            Nombre padre
+            <input name="parentName" type="text" maxlength="120" value="<%= formData.parentName || '' %>" />
+          </label>
+
+          <label>
+            Notas
+            <textarea name="notes" rows="3"><%= formData.notes || '' %></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button type="submit">Guardar cambios</button>
+            <a class="button-link button-link-secondary" href="/students/<%= student.id %>">Cancelar</a>
+          </div>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

@@ -1,13 +1,54 @@
 const express = require("express");
-const { createPayment, listPayments } = require("../db/paymentsRepository");
+const {
+  createPayment,
+  deletePayment,
+  findPaymentById,
+  listPayments,
+  updatePayment
+} = require("../db/paymentsRepository");
 const { findStudentById, listStudents } = require("../db/studentsRepository");
+const { isFutureDateInput, isValidDateInput, todayForInput } = require("../utils/dates");
 
 const router = express.Router();
 
-function todayForInput() {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Santiago"
-  }).format(new Date());
+function paymentFormData(body) {
+  return {
+    studentId: Number(body.studentId),
+    paymentDate: String(body.paymentDate || "").trim(),
+    amountPaid: Number(body.amountPaid),
+    method: String(body.method || "").trim(),
+    notes: String(body.notes || "").trim()
+  };
+}
+
+function validatePayment(formData) {
+  const errors = [];
+
+  if (!Number.isInteger(formData.studentId) || formData.studentId <= 0) {
+    errors.push("Debes seleccionar un alumno.");
+  }
+
+  if (!formData.paymentDate) {
+    errors.push("La fecha del pago es obligatoria.");
+  } else if (!isValidDateInput(formData.paymentDate)) {
+    errors.push("La fecha del pago no es valida.");
+  } else if (isFutureDateInput(formData.paymentDate)) {
+    errors.push("El pago no puede tener fecha futura en esta version.");
+  }
+
+  if (!Number.isInteger(formData.amountPaid) || formData.amountPaid <= 0) {
+    errors.push("El monto pagado debe ser un numero entero mayor a 0.");
+  }
+
+  if (formData.method.length > 80) {
+    errors.push("El metodo no puede superar 80 caracteres.");
+  }
+
+  if (formData.method && !["transferencia", "efectivo"].includes(formData.method)) {
+    errors.push("El metodo de pago debe ser transferencia o efectivo.");
+  }
+
+  return errors;
 }
 
 async function renderIndex(res, { errors = [], formData = {} } = {}) {
@@ -34,27 +75,8 @@ router.get("/", async (_req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
-  const formData = {
-    studentId: Number(req.body.studentId),
-    paymentDate: String(req.body.paymentDate || "").trim(),
-    amountPaid: Number(req.body.amountPaid),
-    method: String(req.body.method || "").trim(),
-    notes: String(req.body.notes || "").trim()
-  };
-
-  const errors = [];
-
-  if (!Number.isInteger(formData.studentId) || formData.studentId <= 0) {
-    errors.push("Debes seleccionar un alumno.");
-  }
-
-  if (!formData.paymentDate) {
-    errors.push("La fecha del pago es obligatoria.");
-  }
-
-  if (!Number.isInteger(formData.amountPaid) || formData.amountPaid <= 0) {
-    errors.push("El monto pagado debe ser un numero entero mayor a 0.");
-  }
+  const formData = paymentFormData(req.body);
+  const errors = validatePayment(formData);
 
   try {
     const student =
@@ -71,6 +93,91 @@ router.post("/", async (req, res, next) => {
     }
 
     await createPayment(formData);
+    return res.redirect("/payments");
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get("/:id/edit", async (req, res, next) => {
+  try {
+    const paymentId = Number(req.params.id);
+    const [payment, students] = await Promise.all([
+      Number.isInteger(paymentId) ? findPaymentById(paymentId) : null,
+      listStudents()
+    ]);
+
+    if (!payment) {
+      return res.status(404).render("error", {
+        pageTitle: "Pago no encontrado",
+        message: "No encontramos el pago solicitado."
+      });
+    }
+
+    return res.render("payments/edit", {
+      pageTitle: "Editar pago",
+      payment,
+      students,
+      errors: [],
+      formData: payment
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post("/:id", async (req, res, next) => {
+  const paymentId = Number(req.params.id);
+  const formData = paymentFormData(req.body);
+  const errors = validatePayment(formData);
+
+  try {
+    const [payment, students] = await Promise.all([
+      Number.isInteger(paymentId) ? findPaymentById(paymentId) : null,
+      listStudents()
+    ]);
+
+    if (!payment) {
+      return res.status(404).render("error", {
+        pageTitle: "Pago no encontrado",
+        message: "No encontramos el pago solicitado."
+      });
+    }
+
+    const student =
+      Number.isInteger(formData.studentId) && formData.studentId > 0
+        ? await findStudentById(formData.studentId)
+        : null;
+
+    if (!student) {
+      errors.push("El alumno seleccionado no existe.");
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).render("payments/edit", {
+        pageTitle: "Editar pago",
+        payment,
+        students,
+        errors,
+        formData
+      });
+    }
+
+    await updatePayment(paymentId, formData);
+    return res.redirect("/payments");
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post("/:id/delete", async (req, res, next) => {
+  try {
+    const paymentId = Number(req.params.id);
+
+    if (Number.isInteger(paymentId)) {
+      await deletePayment(paymentId);
+    }
+
     return res.redirect("/payments");
   } catch (error) {
     return next(error);

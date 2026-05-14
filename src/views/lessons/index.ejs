@@ -10,8 +10,9 @@
     <header class="topbar">
       <a class="brand" href="/">ClassTrack</a>
       <nav class="nav">
+        <a href="/">Dashboard</a>
         <a href="/students">Alumnos</a>
-        <a href="/lessons">Clases</a>
+        <a class="active" href="/lessons">Clases</a>
         <a href="/payments">Pagos</a>
       </nav>
     </header>
@@ -66,6 +67,7 @@
                 name="durationMinutes"
                 type="number"
                 min="1"
+                max="480"
                 step="1"
                 value="<%= formData.durationMinutes || '' %>"
                 required
@@ -142,6 +144,12 @@
                 <% if (lesson.notes) { %>
                   <p class="notes"><%= lesson.notes %></p>
                 <% } %>
+                <div class="card-actions">
+                  <a href="/lessons/<%= lesson.id %>/edit">Editar</a>
+                  <form action="/lessons/<%= lesson.id %>/delete" method="post" data-confirm="Esto eliminara la clase registrada.">
+                    <button class="danger-button" type="submit">Eliminar</button>
+                  </form>
+                </div>
               </article>
             <% }) %>
           </div>
@@ -150,5 +158,6 @@
     </main>
 
     <script src="/lessons.js"></script>
+    <script src="/confirm.js"></script>
   </body>
 </html>

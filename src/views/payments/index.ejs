@@ -10,9 +10,10 @@
     <header class="topbar">
       <a class="brand" href="/">ClassTrack</a>
       <nav class="nav">
+        <a href="/">Dashboard</a>
         <a href="/students">Alumnos</a>
         <a href="/lessons">Clases</a>
-        <a href="/payments">Pagos</a>
+        <a class="active" href="/payments">Pagos</a>
       </nav>
     </header>
 
@@ -73,7 +74,11 @@
 
             <label>
               Metodo
-              <input name="method" type="text" value="<%= formData.method || '' %>" />
+              <select name="method">
+                <option value="">Sin metodo</option>
+                <option value="transferencia" <%= formData.method === 'transferencia' ? 'selected' : '' %>>Transferencia</option>
+                <option value="efectivo" <%= formData.method === 'efectivo' ? 'selected' : '' %>>Efectivo</option>
+              </select>
             </label>
 
             <label>
@@ -103,11 +108,19 @@
                 <% if (payment.notes) { %>
                   <p class="notes"><%= payment.notes %></p>
                 <% } %>
+                <div class="card-actions">
+                  <a href="/payments/<%= payment.id %>/edit">Editar</a>
+                  <form action="/payments/<%= payment.id %>/delete" method="post" data-confirm="Esto eliminara el pago registrado.">
+                    <button class="danger-button" type="submit">Eliminar</button>
+                  </form>
+                </div>
               </article>
             <% }) %>
           </div>
         <% } %>
       </section>
     </main>
+
+    <script src="/confirm.js"></script>
   </body>
 </html>

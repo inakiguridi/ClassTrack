@@ -1,17 +1,66 @@
 const express = require("express");
-const { createLesson, listLessons } = require("../db/lessonsRepository");
+const {
+  createLesson,
+  deleteLesson,
+  findLessonById,
+  listLessons,
+  updateLesson
+} = require("../db/lessonsRepository");
 const { findStudentById, listStudents } = require("../db/studentsRepository");
+const { isFutureDateInput, isValidDateInput, todayForInput } = require("../utils/dates");
 
 const router = express.Router();
 
-function todayForInput() {
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Santiago"
-  }).format(new Date());
-}
-
 function calculateAutoAmount(hourlyRate, durationMinutes) {
   return Math.round((hourlyRate * durationMinutes) / 60);
+}
+
+function lessonFormData(body) {
+  return {
+    studentId: Number(body.studentId),
+    lessonDate: String(body.lessonDate || "").trim(),
+    durationMinutes: Number(body.durationMinutes),
+    chargeMode: String(body.chargeMode || "auto").trim(),
+    manualAmount: body.manualAmount === "" ? null : Number(body.manualAmount),
+    notes: String(body.notes || "").trim()
+  };
+}
+
+function validateLesson(formData) {
+  const errors = [];
+
+  if (!Number.isInteger(formData.studentId) || formData.studentId <= 0) {
+    errors.push("Debes seleccionar un alumno.");
+  }
+
+  if (!formData.lessonDate) {
+    errors.push("La fecha de la clase es obligatoria.");
+  } else if (!isValidDateInput(formData.lessonDate)) {
+    errors.push("La fecha de la clase no es valida.");
+  } else if (isFutureDateInput(formData.lessonDate)) {
+    errors.push("La clase no puede tener fecha futura en esta version.");
+  }
+
+  if (!Number.isInteger(formData.durationMinutes) || formData.durationMinutes <= 0) {
+    errors.push("La duracion debe ser un numero entero mayor a 0.");
+  }
+
+  if (formData.durationMinutes > 480) {
+    errors.push("La duracion no puede superar 480 minutos.");
+  }
+
+  if (!["auto", "manual"].includes(formData.chargeMode)) {
+    errors.push("El modo de cobro no es valido.");
+  }
+
+  if (
+    formData.chargeMode === "manual" &&
+    (!Number.isInteger(formData.manualAmount) || formData.manualAmount < 0)
+  ) {
+    errors.push("El monto manual debe ser un numero entero mayor o igual a 0.");
+  }
+
+  return errors;
 }
 
 async function renderIndex(res, { errors = [], formData = {} } = {}) {
@@ -39,39 +88,8 @@ router.get("/", async (_req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
-  const formData = {
-    studentId: Number(req.body.studentId),
-    lessonDate: String(req.body.lessonDate || "").trim(),
-    durationMinutes: Number(req.body.durationMinutes),
-    chargeMode: String(req.body.chargeMode || "auto").trim(),
-    manualAmount: req.body.manualAmount === "" ? null : Number(req.body.manualAmount),
-    notes: String(req.body.notes || "").trim()
-  };
-
-  const errors = [];
-
-  if (!Number.isInteger(formData.studentId) || formData.studentId <= 0) {
-    errors.push("Debes seleccionar un alumno.");
-  }
-
-  if (!formData.lessonDate) {
-    errors.push("La fecha de la clase es obligatoria.");
-  }
-
-  if (!Number.isInteger(formData.durationMinutes) || formData.durationMinutes <= 0) {
-    errors.push("La duracion debe ser un numero entero mayor a 0.");
-  }
-
-  if (!["auto", "manual"].includes(formData.chargeMode)) {
-    errors.push("El modo de cobro no es valido.");
-  }
-
-  if (
-    formData.chargeMode === "manual" &&
-    (!Number.isInteger(formData.manualAmount) || formData.manualAmount < 0)
-  ) {
-    errors.push("El monto manual debe ser un numero entero mayor o igual a 0.");
-  }
+  const formData = lessonFormData(req.body);
+  const errors = validateLesson(formData);
 
   try {
     const student =
@@ -102,6 +120,106 @@ router.post("/", async (req, res, next) => {
       amountCharged,
       notes: formData.notes
     });
+
+    return res.redirect("/lessons");
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.get("/:id/edit", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.id);
+    const [lesson, students] = await Promise.all([
+      Number.isInteger(lessonId) ? findLessonById(lessonId) : null,
+      listStudents()
+    ]);
+
+    if (!lesson) {
+      return res.status(404).render("error", {
+        pageTitle: "Clase no encontrada",
+        message: "No encontramos la clase solicitada."
+      });
+    }
+
+    return res.render("lessons/edit", {
+      pageTitle: "Editar clase",
+      lesson,
+      students,
+      errors: [],
+      formData: lesson
+    });
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post("/:id", async (req, res, next) => {
+  const lessonId = Number(req.params.id);
+  const formData = lessonFormData(req.body);
+  const errors = validateLesson(formData);
+
+  try {
+    const [lesson, students] = await Promise.all([
+      Number.isInteger(lessonId) ? findLessonById(lessonId) : null,
+      listStudents()
+    ]);
+
+    if (!lesson) {
+      return res.status(404).render("error", {
+        pageTitle: "Clase no encontrada",
+        message: "No encontramos la clase solicitada."
+      });
+    }
+
+    const student =
+      Number.isInteger(formData.studentId) && formData.studentId > 0
+        ? await findStudentById(formData.studentId)
+        : null;
+
+    if (!student) {
+      errors.push("El alumno seleccionado no existe.");
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).render("lessons/edit", {
+        pageTitle: "Editar clase",
+        lesson,
+        students,
+        errors,
+        formData
+      });
+    }
+
+    const amountCharged =
+      formData.chargeMode === "manual"
+        ? formData.manualAmount
+        : calculateAutoAmount(student.hourlyRate, formData.durationMinutes);
+
+    await updateLesson(lessonId, {
+      studentId: formData.studentId,
+      lessonDate: formData.lessonDate,
+      durationMinutes: formData.durationMinutes,
+      hourlyRateSnapshot: student.hourlyRate,
+      chargeMode: formData.chargeMode,
+      manualAmount: formData.chargeMode === "manual" ? formData.manualAmount : null,
+      amountCharged,
+      notes: formData.notes
+    });
+
+    return res.redirect("/lessons");
+  } catch (error) {
+    return next(error);
+  }
+});
+
+router.post("/:id/delete", async (req, res, next) => {
+  try {
+    const lessonId = Number(req.params.id);
+
+    if (Number.isInteger(lessonId)) {
+      await deleteLesson(lessonId);
+    }
 
     return res.redirect("/lessons");
   } catch (error) {

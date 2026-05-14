@@ -53,6 +53,54 @@ async function getDashboard() {
   return { students, totals };
 }
 
+async function getStudentBalance(studentId) {
+  ensureDatabase();
+
+  const result = await pool.query(
+    `
+      SELECT
+        students.id,
+        students.name,
+        COALESCE(lesson_totals.total_charged, 0)::int AS total_charged,
+        COALESCE(payment_totals.total_paid, 0)::int AS total_paid,
+        (
+          COALESCE(lesson_totals.total_charged, 0) -
+          COALESCE(payment_totals.total_paid, 0)
+        )::int AS balance
+      FROM students
+      LEFT JOIN (
+        SELECT student_id, SUM(amount_charged) AS total_charged
+        FROM lessons
+        WHERE student_id = $1
+        GROUP BY student_id
+      ) lesson_totals ON lesson_totals.student_id = students.id
+      LEFT JOIN (
+        SELECT student_id, SUM(amount_paid) AS total_paid
+        FROM payments
+        WHERE student_id = $1
+        GROUP BY student_id
+      ) payment_totals ON payment_totals.student_id = students.id
+      WHERE students.id = $1
+    `,
+    [studentId]
+  );
+
+  const row = result.rows[0];
+
+  if (!row) {
+    return null;
+  }
+
+  return {
+    id: row.id,
+    name: row.name,
+    totalCharged: row.total_charged,
+    totalPaid: row.total_paid,
+    balance: row.balance
+  };
+}
+
 module.exports = {
-  getDashboard
+  getDashboard,
+  getStudentBalance
 };

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= pageTitle %> | ClassTrack</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="/">ClassTrack</a>
+      <nav class="nav">
+        <a href="/">Dashboard</a>
+        <a class="active" href="/students">Alumnos</a>
+        <a href="/lessons">Clases</a>
+        <a href="/payments">Pagos</a>
+      </nav>
+    </header>
+
+    <main class="container">
+      <section class="page-header">
+        <p class="eyebrow">Alumno</p>
+        <h1><%= student.name %></h1>
+        <p><%= student.parentName ? `Padre: ${student.parentName}` : 'Sin nombre de padre' %></p>
+      </section>
+
+      <section class="summary-grid">
+        <article class="summary-card">
+          <span>Clases</span>
+          <strong>$<%= balance.totalCharged.toLocaleString('es-CL') %></strong>
+        </article>
+        <article class="summary-card">
+          <span>Pagos</span>
+          <strong>$<%= balance.totalPaid.toLocaleString('es-CL') %></strong>
+        </article>
+        <article class="summary-card <%= balance.balance > 0 ? 'summary-card-warning' : '' %>">
+          <span>Pendiente</span>
+          <strong>$<%= balance.balance.toLocaleString('es-CL') %></strong>
+        </article>
+      </section>
+
+      <section class="panel">
+        <h2>Datos</h2>
+        <p><strong>Tarifa:</strong> $<%= student.hourlyRate.toLocaleString('es-CL') %>/h</p>
+        <p><strong>Nombre padre:</strong> <%= student.parentName || 'Sin registrar' %></p>
+        <p><strong>Notas:</strong> <%= student.notes || 'Sin notas' %></p>
+        <div class="form-actions">
+          <a class="button-link" href="/students/<%= student.id %>/edit">Editar alumno</a>
+          <form action="/students/<%= student.id %>/delete" method="post" data-confirm="Esto borrara el alumno y sus clases/pagos asociados.">
+            <button class="danger-button filled" type="submit">Eliminar alumno</button>
+          </form>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="calendar-header">
+          <h2>Calendario de clases</h2>
+          <div class="calendar-controls">
+            <button type="button" data-calendar-prev aria-label="Mes anterior">Anterior</button>
+            <strong data-calendar-title></strong>
+            <button type="button" data-calendar-next aria-label="Mes siguiente">Siguiente</button>
+          </div>
+        </div>
+        <div class="calendar-weekdays" aria-hidden="true">
+          <span>Lun</span>
+          <span>Mar</span>
+          <span>Mie</span>
+          <span>Jue</span>
+          <span>Vie</span>
+          <span>Sab</span>
+          <span>Dom</span>
+        </div>
+        <div class="calendar-grid" data-calendar-grid></div>
+        <div class="calendar-detail" data-calendar-detail>
+          Selecciona un dia con clases.
+        </div>
+      </section>
+
+      <section class="list-section">
+        <h2>Clases</h2>
+        <% if (lessons.length === 0) { %>
+          <p class="empty">Aun no hay clases para este alumno.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% lessons.forEach((lesson) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><%= lesson.lessonDate %></h3>
+                  <p><%= lesson.durationMinutes %> min - <%= lesson.chargeMode === 'manual' ? 'Manual' : 'Automatico' %></p>
+                </div>
+                <strong>$<%= lesson.amountCharged.toLocaleString('es-CL') %></strong>
+                <div class="card-actions">
+                  <a href="/lessons/<%= lesson.id %>/edit">Editar</a>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="list-section">
+        <h2>Pagos</h2>
+        <% if (payments.length === 0) { %>
+          <p class="empty">Aun no hay pagos para este alumno.</p>
+        <% } else { %>
+          <div class="student-grid">
+            <% payments.forEach((payment) => { %>
+              <article class="student-card">
+                <div>
+                  <h3><%= payment.paymentDate %></h3>
+                  <p><%= payment.method || 'Sin metodo' %></p>
+                </div>
+                <strong>$<%= payment.amountPaid.toLocaleString('es-CL') %></strong>
+                <div class="card-actions">
+                  <a href="/payments/<%= payment.id %>/edit">Editar</a>
+                </div>
+              </article>
+            <% }) %>
+          </div>
+        <% } %>
+      </section>
+    </main>
+
+    <script src="/confirm.js"></script>
+    <script id="calendar-lessons-data" type="application/json"><%- calendarLessonsJson %></script>
+    <script src="/student-calendar.js"></script>
+  </body>
+</html>

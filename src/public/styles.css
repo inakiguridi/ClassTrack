@@ -25,9 +25,11 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   padding: 14px 16px;
   background: var(--panel);
   border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
 }
 
 .brand,
@@ -39,8 +41,16 @@ body {
 }
 
 .nav {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 12px;
+}
+
+.nav a.active {
+  color: var(--accent-dark);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 .container {
@@ -75,6 +85,16 @@ body {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 16px;
+}
+
+.add-panel summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.add-panel .form {
+  margin-top: 16px;
 }
 
 .summary-grid {
@@ -151,6 +171,53 @@ button,
   padding: 10px 14px;
 }
 
+.form-actions,
+.card-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.card-actions {
+  grid-column: 1 / -1;
+}
+
+.card-actions a {
+  color: var(--accent);
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.card-actions form,
+.form-actions form {
+  margin: 0;
+}
+
+.danger-button {
+  background: transparent;
+  color: var(--danger-text);
+  min-height: auto;
+  padding: 0;
+}
+
+.danger-button:hover {
+  background: transparent;
+  text-decoration: underline;
+}
+
+.danger-button.filled {
+  background: var(--danger-text);
+  color: white;
+  min-height: 42px;
+  padding: 10px 14px;
+}
+
+.danger-button.filled:hover {
+  background: #7c140f;
+  text-decoration: none;
+}
+
 button:hover,
 .button-link:hover {
   background: var(--accent-dark);
@@ -186,9 +253,13 @@ button:hover,
   align-items: center;
   display: flex;
   gap: 8px;
+  justify-content: flex-start;
+  min-height: 32px;
 }
 
 .radio-row input {
+  flex: 0 0 auto;
+  margin: 0;
   width: auto;
 }
 
@@ -237,6 +308,15 @@ button:hover,
   margin: 0;
 }
 
+.student-card h3 a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.student-card h3 a:hover {
+  color: var(--accent);
+}
+
 .student-card p,
 .notes,
 .empty {
@@ -253,6 +333,95 @@ button:hover,
 
 .balance-ok {
   color: #187445;
+}
+
+.calendar-header {
+  display: grid;
+  gap: 12px;
+}
+
+.calendar-header h2 {
+  margin: 0;
+}
+
+.calendar-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.calendar-controls button {
+  min-height: 36px;
+  padding: 8px 10px;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+  display: grid;
+  gap: 6px;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+}
+
+.calendar-weekdays {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-top: 14px;
+  text-align: center;
+}
+
+.calendar-grid {
+  margin-top: 8px;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  background: #f9fbfd;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--text);
+  display: grid;
+  min-height: auto;
+  padding: 6px;
+  place-items: center;
+  width: 100%;
+}
+
+.calendar-day:hover {
+  background: #edf8fb;
+}
+
+.calendar-day-empty {
+  background: transparent;
+  border: 0;
+}
+
+.calendar-day.has-lessons {
+  background: #edf8fb;
+  border-color: #82c6d7;
+  color: var(--accent-dark);
+  font-weight: 900;
+}
+
+.calendar-day small {
+  background: var(--accent);
+  border-radius: 999px;
+  color: white;
+  font-size: 0.7rem;
+  line-height: 1;
+  padding: 3px 6px;
+}
+
+.calendar-detail {
+  background: #f9fbfd;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 12px;
 }
 
 @media (min-width: 680px) {
