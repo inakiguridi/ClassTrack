@@ -2,6 +2,8 @@ const form = document.querySelector("[data-lesson-form]");
 
 if (form) {
   const studentSelect = form.querySelector("[data-student-select]");
+  const durationPreset = form.querySelector("[data-duration-preset]");
+  const durationCustomWrapper = form.querySelector("[data-duration-custom-wrapper]");
   const durationInput = form.querySelector("[data-duration-input]");
   const modeInputs = form.querySelectorAll("[data-charge-mode]");
   const manualWrapper = form.querySelector("[data-manual-amount-wrapper]");
@@ -32,10 +34,31 @@ if (form) {
     preview.textContent = `Total estimado: ${formatClp(amount)}`;
   }
 
+  function updateDurationMode() {
+    if (!durationPreset || !durationCustomWrapper) {
+      updatePreview();
+      return;
+    }
+
+    const preset = durationPreset.value;
+    const isOther = preset === "other";
+
+    durationCustomWrapper.hidden = !isOther;
+
+    if (!isOther) {
+      durationInput.value = preset;
+    }
+
+    updatePreview();
+  }
+
   studentSelect.addEventListener("change", updatePreview);
   durationInput.addEventListener("input", updatePreview);
+  if (durationPreset) {
+    durationPreset.addEventListener("change", updateDurationMode);
+  }
   manualInput.addEventListener("input", updatePreview);
   modeInputs.forEach((input) => input.addEventListener("change", updatePreview));
 
-  updatePreview();
+  updateDurationMode();
 }

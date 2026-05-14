@@ -45,6 +45,9 @@
           <a class="button-link" href="/students">Ir a alumnos</a>
         <% } else { %>
           <form class="form" action="/lessons" method="post" data-lesson-form>
+            <input type="hidden" name="filterStudentId" value="<%= filters.studentId || '' %>" />
+            <input type="hidden" name="filterDateFrom" value="<%= filters.dateFrom || '' %>" />
+            <input type="hidden" name="filterDateTo" value="<%= filters.dateTo || '' %>" />
             <label>
               Alumno
               <select name="studentId" required data-student-select>
@@ -67,14 +70,23 @@
             </label>
 
             <label>
-              Duracion (minutos)
+              Duracion
+              <select name="durationPreset" data-duration-preset>
+                <option value="60" <%= Number(formData.durationMinutes) === 60 ? 'selected' : '' %>>60 min</option>
+                <option value="90" <%= Number(formData.durationMinutes) === 90 ? 'selected' : '' %>>90 min</option>
+                <option value="other" <%= ![60, 90].includes(Number(formData.durationMinutes)) ? 'selected' : '' %>>Otro</option>
+              </select>
+            </label>
+
+            <label data-duration-custom-wrapper>
+              Duracion manual (minutos)
               <input
                 name="durationMinutes"
                 type="number"
                 min="1"
                 max="480"
                 step="1"
-                value="<%= formData.durationMinutes || '' %>"
+                value="<%= formData.durationMinutes || 60 %>"
                 required
                 data-duration-input
               />

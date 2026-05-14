@@ -39,6 +39,28 @@ function lessonFormData(body) {
   };
 }
 
+function filterQueryFromBody(body) {
+  const filterStudentId = Number(body.filterStudentId) || null;
+  const dateFrom = isValidDateInput(String(body.filterDateFrom || "")) ? body.filterDateFrom : "";
+  const dateTo = isValidDateInput(String(body.filterDateTo || "")) ? body.filterDateTo : "";
+  const params = new URLSearchParams();
+
+  if (filterStudentId) {
+    params.set("studentId", String(filterStudentId));
+  }
+
+  if (dateFrom) {
+    params.set("dateFrom", dateFrom);
+  }
+
+  if (dateTo) {
+    params.set("dateTo", dateTo);
+  }
+
+  const query = params.toString();
+  return query ? `?${query}` : "";
+}
+
 function validateLesson(formData) {
   const errors = [];
 
@@ -92,6 +114,8 @@ async function renderIndex(res, { errors = [], formData = {} } = {}) {
     errors,
     formData: {
       lessonDate: todayForInput(),
+      durationPreset: "60",
+      durationMinutes: 60,
       chargeMode: "auto",
       ...formData
     }
@@ -110,6 +134,7 @@ router.get("/", async (_req, res, next) => {
 
 router.post("/", async (req, res, next) => {
   const formData = lessonFormData(req.body);
+  const filterQuery = filterQueryFromBody(req.body);
   const errors = validateLesson(formData);
 
   try {
@@ -142,7 +167,7 @@ router.post("/", async (req, res, next) => {
       notes: formData.notes
     });
 
-    return res.redirect(withSuccess("/lessons", "Clase registrada correctamente."));
+    return res.redirect(withSuccess(`/lessons${filterQuery}`, "Clase registrada correctamente."));
   } catch (error) {
     return next(error);
   }

@@ -45,6 +45,9 @@
           <a class="button-link" href="/students">Ir a alumnos</a>
         <% } else { %>
           <form class="form" action="/payments" method="post">
+            <input type="hidden" name="filterStudentId" value="<%= filters.studentId || '' %>" />
+            <input type="hidden" name="filterDateFrom" value="<%= filters.dateFrom || '' %>" />
+            <input type="hidden" name="filterDateTo" value="<%= filters.dateTo || '' %>" />
             <label>
               Alumno
               <select name="studentId" required>
