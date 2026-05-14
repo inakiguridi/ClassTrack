@@ -1,28 +1,54 @@
-# ClassTrack
+﻿# ClassTrack
 
-Aplicacion web privada para registrar clases particulares, cobros, pagos y saldos por alumno.
+ClassTrack es una aplicacion web privada para registrar clases particulares, cobros, pagos y saldos por alumno.
+
+Acceso web: https://classtrack-ig.vercel.app
+
+## Que Permite Hacer
+
+- Iniciar sesion con contrasena de administrador.
+- Registrar alumnos con nombre, nombre del padre/apoderado y tarifa por hora.
+- Registrar clases realizadas por alumno.
+- Calcular cobros automaticamente segun duracion y tarifa del alumno.
+- Definir cobros manuales cuando una clase tenga un valor especial.
+- Registrar pagos por alumno.
+- Clasificar pagos como `transferencia` o `efectivo`.
+- Ver deuda general y deuda por alumno.
+- Filtrar clases y pagos por alumno y fecha.
+- Revisar el detalle de cada alumno con historial de clases, pagos, saldo y calendario.
+- Editar y eliminar alumnos, clases y pagos.
+- Ver analytics con estadisticas generales, mensuales, por alumno, por duracion y por metodo de pago.
+- Exportar informacion en CSV.
 
 ## Stack
 
-- `Node.js` + `Express`
+- `Node.js` >= 20
+- `Express`
 - `EJS`
 - `PostgreSQL` en `Supabase`
-- Deploy preparado para `Vercel`
+- `Vercel` para hosting web
 
-## Funcionalidad Actual
+## Estructura Principal
 
-- Login simple con contrasena.
-- Dashboard con totales y resumen mensual.
-- CRUD de alumnos.
-- Detalle de alumno con saldo, clases, pagos y calendario.
-- CRUD de clases con cobro automatico o manual.
-- CRUD de pagos con metodo `transferencia` o `efectivo`.
-- Filtros por alumno y fecha en clases y pagos.
-- UI responsive para escritorio y celular.
+```text
+api/
+  index.js              # Entrada serverless para Vercel
+public/
+  styles.css            # Estilos globales
+  *.js                  # Scripts del frontend
+src/
+  app.js                # Configuracion principal de Express
+  server.js             # Arranque local
+  db/                   # Conexion, schema y repositorios SQL
+  middleware/           # Middleware de autenticacion
+  routes/               # Rutas de la aplicacion
+  utils/                # Utilidades compartidas
+  views/                # Vistas EJS
+```
 
 ## Variables de Entorno
 
-Crear `.env` local desde `.env.example`:
+Para desarrollo local, crear un archivo `.env` basado en `.env.example`:
 
 ```env
 PORT=3000
@@ -31,74 +57,86 @@ ADMIN_PASSWORD=tu-contrasena
 SESSION_SECRET=un-secreto-largo-y-aleatorio
 ```
 
-En desarrollo, si `ADMIN_PASSWORD` no existe, la app permite entrar con `admin`.
-En produccion, `ADMIN_PASSWORD` y `SESSION_SECRET` son obligatorias.
+Notas:
+
+- En desarrollo, si `ADMIN_PASSWORD` no existe, la app permite entrar con `admin`.
+- En produccion, `ADMIN_PASSWORD` y `SESSION_SECRET` son obligatorias.
+- `DATABASE_URL` debe apuntar a la base de datos de Supabase.
+- No subir `.env` al repositorio.
 
 ## Base de Datos
 
-Ejecutar `src/db/schema.sql` en Supabase.
+El schema inicial esta en:
 
-Si tu base ya existia antes de `parent_name`, ejecutar:
-
-```sql
-ALTER TABLE students ADD COLUMN IF NOT EXISTS parent_name TEXT;
+```text
+src/db/schema.sql
 ```
+
+Tablas principales:
+
+- `students`: alumnos, tarifa por hora y datos basicos.
+- `lessons`: clases realizadas, duracion y monto cobrado.
+- `payments`: pagos recibidos, monto, metodo y fecha.
+
+Relaciones principales:
+
+- Un alumno puede tener muchas clases.
+- Un alumno puede tener muchos pagos.
+- Cada clase y cada pago pertenece a un alumno.
 
 ## Arranque Local
 
+Instalar dependencias:
+
 ```powershell
 npm install
+```
+
+Levantar el servidor local:
+
+```powershell
 npm run dev
 ```
 
-Luego abrir:
+Abrir:
 
 ```text
 http://localhost:3000
 ```
 
-## Deploy en Vercel
+## Scripts
 
-1. Subir el repo a GitHub.
-2. Crear un proyecto nuevo en Vercel conectado al repo.
-3. Configurar variables de entorno en Vercel:
-   `DATABASE_URL`, `ADMIN_PASSWORD`, `SESSION_SECRET`, `NODE_ENV=production`.
-4. Deploy.
-
-Notas:
-- Vercel entra por `api/index.js`, que exporta la app Express desde `src/app.js`.
-- `vercel.json` incluye `src/views/**` para que EJS pueda renderizar en serverless.
-- Los assets estan en `public/`, que Vercel sirve como archivos estaticos.
-- No subir `.env` ni `.vercel/`.
-
-## Diagnostico en Produccion
-
-Despues de iniciar sesion, abre:
-
-```text
-/health/db
+```powershell
+npm run dev
 ```
 
-Respuesta esperada:
+Inicia la app local con recarga automatica de Node.
 
-```json
-{
-  "ok": true,
-  "databaseUrl": "supabase-pooler",
-  "checks": {
-    "students_table": true,
-    "lessons_table": true,
-    "payments_table": true,
-    "parent_name_column": true
-  }
-}
+```powershell
+npm start
 ```
 
-Si `databaseUrl` dice `supabase-direct` y falla en Vercel, cambia `DATABASE_URL` por la URL del pooler de Supabase. La conexion directa de Supabase puede requerir IPv6; el pooler es la opcion compatible para entornos que necesitan IPv4.
+Inicia la app local sin modo watch.
 
-## Pendiente Opcional
+## Rutas Utiles
 
-- Rotar credenciales de Supabase si alguna vez se subieron a GitHub.
+- `/`: dashboard principal.
+- `/students`: alumnos.
+- `/lessons`: clases.
+- `/payments`: pagos.
+- `/analytics`: estadisticas y reportes.
+- `/health/db`: diagnostico de conexion a base de datos, disponible despues de iniciar sesion.
+
+## Estado Actual
+
+La aplicacion ya esta preparada para funcionar en web mediante Vercel y Supabase. El flujo principal de V1 esta implementado: alumnos, clases, pagos, saldos, filtros, calendario, analytics, exportacion y login simple.
+
+## Ideas Futuras
+
+- Login multiusuario.
+- Recuperacion de contrasena.
 - Tests automatizados.
-- Exportacion CSV/Excel.
-- Reportes mas avanzados.
+- Exportacion Excel ademas de CSV.
+- Graficos visuales en analytics.
+- Notas por alumno o por clase.
+- Recordatorios de pagos pendientes.
