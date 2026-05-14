@@ -31,9 +31,24 @@ function parseCookies(cookieHeader = "") {
       return cookies;
     }
 
-    cookies[rawName] = decodeURIComponent(rawValue.join("="));
+    try {
+      cookies[rawName] = decodeURIComponent(rawValue.join("="));
+    } catch (_error) {
+      cookies[rawName] = "";
+    }
+
     return cookies;
   }, {});
+}
+
+function safeRedirectPath(value) {
+  const nextPath = String(value || "/");
+
+  if (!nextPath.startsWith("/") || nextPath.startsWith("//")) {
+    return "/";
+  }
+
+  return nextPath;
 }
 
 function sign(value) {
@@ -135,6 +150,7 @@ module.exports = {
   getAdminPassword,
   getSessionFromRequest,
   isValidSession,
+  safeRedirectPath,
   sessionCookie,
   safeEqual
 };

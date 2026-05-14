@@ -1,15 +1,14 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "src/app.js",
-      "use": "@vercel/node"
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "src/views/**"
     }
-  ],
-  "routes": [
+  },
+  "rewrites": [
     {
-      "src": "/(.*)",
-      "dest": "src/app.js"
+      "source": "/(.*)",
+      "destination": "/api/index.js"
     }
   ]
 }

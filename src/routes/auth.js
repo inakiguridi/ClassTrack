@@ -4,6 +4,7 @@ const {
   clearSessionCookie,
   createSessionValue,
   getAdminPassword,
+  safeRedirectPath,
   safeEqual,
   sessionCookie
 } = require("../utils/auth");
@@ -14,7 +15,7 @@ router.get("/login", (req, res) => {
   res.render("auth/login", {
     pageTitle: "Ingresar",
     error: null,
-    nextUrl: req.query.next || "/",
+    nextUrl: safeRedirectPath(req.query.next),
     configError: authConfigError(),
     usesDevPassword: !process.env.ADMIN_PASSWORD && process.env.NODE_ENV !== "production"
   });
@@ -22,7 +23,7 @@ router.get("/login", (req, res) => {
 
 router.post("/login", (req, res) => {
   const configError = authConfigError();
-  const nextUrl = String(req.body.next || "/");
+  const nextUrl = safeRedirectPath(req.body.next);
 
   if (configError) {
     return res.status(500).render("auth/login", {
@@ -60,7 +61,7 @@ router.post("/login", (req, res) => {
   }
 
   res.setHeader("Set-Cookie", sessionCookie(sessionValue));
-  return res.redirect(nextUrl.startsWith("/") ? nextUrl : "/");
+  return res.redirect(nextUrl);
 });
 
 router.post("/logout", (_req, res) => {

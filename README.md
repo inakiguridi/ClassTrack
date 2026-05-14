@@ -66,7 +66,8 @@ http://localhost:3000
 4. Deploy.
 
 Notas:
-- La app exporta Express desde `src/app.js`, compatible con Express en Vercel.
+- Vercel entra por `api/index.js`, que exporta la app Express desde `src/app.js`.
+- `vercel.json` incluye `src/views/**` para que EJS pueda renderizar en serverless.
 - Los assets estan en `public/`, que Vercel sirve como archivos estaticos.
 - No subir `.env` ni `.vercel/`.
 
